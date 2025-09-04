@@ -115,11 +115,24 @@ if (isset($_POST['ajax'])) {
 </div>
 
 <style>
-/* Container */
+    /* Import font dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Terapkan font ke semua elemen */
+body, button, input, table, th, td, a, .btn-add, .btn-edit, .btn-delete {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container utama */
 .data-container {
     margin: 0;
     padding: 16px;
-    background: #f4f6f9;
     min-height: calc(100vh - 60px);
 }
 
@@ -137,7 +150,7 @@ if (isset($_POST['ajax'])) {
 
 /* Button Tambah */
 .btn-add {
-    background:  #1e40af;
+    background: #3498db;
     color: #fff;
     border: none;
     padding: 8px 16px;
@@ -150,9 +163,8 @@ if (isset($_POST['ajax'])) {
     font-weight: 500;
     transition: all 0.2s ease-in-out;
 }
-
 .btn-add:hover {
-    background: #3d006fff;
+    background: #000280ff;
     transform: translateY(-1px);
 }
 
@@ -162,7 +174,6 @@ if (isset($_POST['ajax'])) {
     align-items: center;
     gap: 8px;
 }
-
 .search-input {
     width: 280px;
     height: 38px;
@@ -171,13 +182,11 @@ if (isset($_POST['ajax'])) {
     border-radius: 6px;
     font-size: 14px;
 }
-
 .search-input:focus {
     border-color: #3498db;
     outline: none;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
 }
-
 .search-button {
     height: 38px;
     width: 38px;
@@ -191,7 +200,6 @@ if (isset($_POST['ajax'])) {
     justify-content: center;
     transition: background 0.2s;
 }
-
 .search-button:hover {
     background: #2980b9;
 }
@@ -204,31 +212,25 @@ if (isset($_POST['ajax'])) {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     overflow-x: auto;
 }
-
 .data-table {
     width: 100%;
     border-collapse: collapse;
 }
-
 .data-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-    padding: 12px;
+    background: #3498db;
+    color: white;
+    padding: 0.75rem;
     text-align: left;
     border-bottom: 2px solid #ddd;
-    font-size: 14px;
+    font-weight: 600;
+}
+.data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
     color: #333;
 }
-
-.data-table td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-    color: #555;
-}
-
 .data-table tr:hover {
-    background: #f9f9f9;
+    background: #f8faff;
 }
 
 /* Photo */
@@ -244,7 +246,6 @@ if (isset($_POST['ajax'])) {
     display: flex;
     gap: 6px;
 }
-
 .btn-edit, .btn-delete {
     padding: 6px 10px;
     font-size: 13px;
@@ -253,19 +254,15 @@ if (isset($_POST['ajax'])) {
     text-decoration: none;
     transition: all 0.2s;
 }
-
 .btn-edit {
     background: #2ecc71;
 }
-
 .btn-delete {
     background: #e74c3c;
 }
-
 .btn-edit:hover {
     background: #27ae60;
 }
-
 .btn-delete:hover {
     background: #c0392b;
 }
@@ -277,7 +274,6 @@ if (isset($_POST['ajax'])) {
     gap: 6px;
     margin-top: 16px;
 }
-
 .pagination a {
     padding: 8px 12px;
     border: 1px solid #ddd;
@@ -288,18 +284,15 @@ if (isset($_POST['ajax'])) {
     background: #fff;
     transition: all 0.2s;
 }
-
 .pagination a:hover:not(.disabled) {
     background: #f0f8ff;
     border-color: #3498db;
 }
-
 .pagination .active {
     background: #3498db;
     color: white;
     border-color: #3498db;
 }
-
 .pagination .disabled {
     color: #ccc;
     cursor: not-allowed;
@@ -317,6 +310,7 @@ if (isset($_POST['ajax'])) {
         width: 100%;
     }
 }
+
 </style>
 
 <script>

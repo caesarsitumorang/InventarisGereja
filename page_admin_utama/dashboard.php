@@ -9,7 +9,7 @@ $row_total = mysqli_fetch_assoc($result_total);
 $total_inventaris = $row_total['total'];
 
 // Count active peminjaman
-$query_active = "SELECT COUNT(*) as active FROM peminjaman WHERE status = 'active'";
+$query_active = "SELECT COUNT(*) as active FROM peminjaman WHERE status = 'dipinjam'";
 $result_active = mysqli_query($koneksi, $query_active);
 $row_active = mysqli_fetch_assoc($result_active);
 $active_peminjaman = $row_active['active'];
@@ -29,7 +29,6 @@ $inventaris_rusak = $row_rusak['rusak'];
 
     .dashboard-welcome {
         font-size: 24px;
-        color: var(--primary-color);
         padding: 1.5rem;
         background: white;
         border-radius: 8px;
@@ -71,7 +70,6 @@ $inventaris_rusak = $row_rusak['rusak'];
 
     .stat-card h3 {
         margin: 0;
-        color: var(--primary-color);
         font-size: 16px;
         font-weight: 600;
     }
@@ -79,7 +77,6 @@ $inventaris_rusak = $row_rusak['rusak'];
     .stat-value {
         font-size: 24px;
         font-weight: bold;
-        color: var(--accent-color);
         margin-top: 8px;
     }
 
@@ -126,6 +123,6 @@ $inventaris_rusak = $row_rusak['rusak'];
     </div>
 
     <div class="church-image-container">
-        <img src="../upload/gereja.jpg" alt="Gambar Gereja" class="church-image">
+        <img src="img/gereja.jpg" alt="Gambar Gereja" class="church-image">
     </div>
 </div></div>

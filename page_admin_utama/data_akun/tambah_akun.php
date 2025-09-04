@@ -205,7 +205,7 @@ textarea.form-control {
 }
 
 .btn-submit {
-    background: #2ecc71;
+    background:  #3498db;
     color: white;
     border: none;
 }

@@ -59,18 +59,19 @@ if(isset($_POST['ajax'])) {
                     <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                     <td><?= htmlspecialchars($row['keterangan']); ?></td>
                     <td>
-                        <div class="action-buttons">
-                            <button onclick="editData(<?= $row['id']; ?>)" class="btn-edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="confirmDelete(<?= $row['id']; ?>)" class="btn-delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button onclick="showDetail(<?= $row['id']; ?>)" class="btn-detail">
-                                <i class="fas fa-info-circle"></i>
-                            </button>
-                        </div>
-                    </td>
+   <div class="action-buttons">
+        <a href="index_admin_utama.php?page_admin_utama=data_inventaris_v/edit_inventaris&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>
+        <a href="index_admin_utama.php?page_admin_utama=data_inventaris_v/hapus_inventaris&id=<?= $row['id']; ?>" 
+           class="btn-delete" 
+           onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</a>
+        <button type="button" 
+                class="btn-detail" 
+                onclick='showDetail(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>)'>
+            Lihat Detail
+        </button>
+    </div>
+</td>
+
                 </tr>
             <?php } ?>
             <?php if(mysqli_num_rows($result) == 0) { ?>
@@ -110,9 +111,7 @@ if(isset($_POST['ajax'])) {
         </div>
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="Cari berdasarkan nama/kode barang...">
-            <button class="search-button" onclick="loadData(1)">
-                <i class="fas fa-search"></i> Cari
-            </button>
+          
         </div>
     </div>
 
@@ -121,90 +120,115 @@ if(isset($_POST['ajax'])) {
     </div>
 </div>
 
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Detail Inventaris</h2>
+    <table class="detail-table">
+      <tbody id="detailBody"></tbody>
+    </table>
+  </div>
+</div>
+
+
+
 <style>
-.data-container {
-    padding: 1.5rem;
-    background: #f8f9fa;
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Global */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
 }
 
+/* Container */
+.data-container {
+    padding: 1.5rem;
+    min-height: 100vh;
+}
+
+/* Header */
 .data-header {
-    background: white;
+    background: #fff;
     padding: 1rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
 .header-actions {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .search-container {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .search-input {
-    padding: 0.5rem 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    width: 300px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 280px;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.search-input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 4px rgba(52, 152, 219, 0.4);
 }
 
 .search-button, .btn-add, .btn-download {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     color: white;
-    transition: opacity 0.3s;
+    font-weight: 500;
+    transition: all 0.3s;
     font-size: 0.9rem;
+    font-family: inherit;
 }
 
-.search-button {
-    background: #3498db;
-}
+.search-button { background: #3498db; }
+.btn-add { background: #3498db; }
+.btn-download { background: #3498db;}
 
-.btn-add {
-    background: #2ecc71;
-}
+.search-button:hover { background: #2980b9; }
+.btn-add:hover { background: #27ae60; }
+.btn-download:hover { background: #8e44ad; }
 
-.btn-download {
-    background: #9b59b6;
-}
-
-.search-button:hover, .btn-add:hover, .btn-download:hover {
-    opacity: 0.85;
-}
-
-.search-button {
-    background: #3498db;
-}
-
-.btn-add {
-    background: #2ecc71;
-}
-
+/* Table */
 .data-table-container {
     background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     overflow-x: auto;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
+    min-width: 900px;
+    font-family: inherit;
 }
 
 .data-table th {
@@ -212,64 +236,73 @@ if(isset($_POST['ajax'])) {
     color: white;
     padding: 0.75rem;
     text-align: left;
-    white-space: nowrap;
+    border-bottom: 2px solid #ddd;
 }
 
 .data-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #dee2e6;
-    white-space: nowrap;
+    border-bottom: 1px solid #eee;
+    color: #333;
 }
 
 .data-table tr:hover {
-    background: #f8f9fa;
+    background: #f8faff;
 }
 
+/* Action buttons */
 .action-buttons {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
 }
 
 .btn-edit, .btn-delete, .btn-detail {
-    width: 28px;
-    height: 28px;
+    padding: 0.4rem 0.7rem;
     border: none;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: white;
-    transition: opacity 0.3s;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    font-family: inherit;
 }
 
 .btn-edit { background: #2ecc71; }
 .btn-delete { background: #e74c3c; }
 .btn-detail { background: #3498db; }
 
-.btn-edit:hover, .btn-delete:hover, .btn-detail:hover {
-    opacity: 0.8;
-}
+.btn-edit:hover { background: #3498db; }
+.btn-delete:hover { background: #720b00ff; }
+.btn-detail:hover { background: #003354ff; }
 
+/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+    gap: 0.4rem;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+    font-family: inherit;
 }
 
 .pagination a {
-    padding: 0.5rem 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     text-decoration: none;
     color: #3498db;
     background: white;
     transition: all 0.3s;
+    font-size: 0.85rem;
+    font-family: inherit;
 }
 
 .pagination a:hover:not(.disabled) {
-    background: #e9ecef;
+    background: #ecf0f1;
+    border-color: #3498db;
 }
 
 .pagination .active {
@@ -279,15 +312,110 @@ if(isset($_POST['ajax'])) {
 }
 
 .pagination .disabled {
-    color: #adb5bd;
+    color: #bbb;
+    background: #f8f9fa;
     cursor: not-allowed;
     pointer-events: none;
 }
 
+/* Utility */
 .text-center {
     text-align: center;
 }
+/* Modal background */
+/* Modal background */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  align-items: flex-start; /* posisi mulai dari atas */
+  justify-content: center;
+  padding: 2rem 1rem; /* ada jarak dari atas */
+}
+
+/* Modal box */
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 750px;
+  width: 100%;
+  position: relative;
+  margin-top: 40px; /* jarak turun dari atas */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  animation: fadeIn .3s ease;
+}
+
+
+/* Header */
+.modal-content h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  color: #3498db;
+  text-align: center;
+}
+
+/* Close button (pojok kanan atas) */
+.close {
+  position: absolute;
+  right: 16px; top: 12px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.close:hover { color: #333; }
+
+/* Table detail */
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+.detail-table th {
+  text-align: left;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  width: 35%;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.detail-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+/* Footer modal */
+.modal-actions {
+  text-align: right;
+}
+.btn-close {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-close:hover { background: #c0392b; }
+
+/* Animation */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+
 </style>
+
 
 <script>
 let currentPage = 1;
@@ -311,40 +439,12 @@ function loadData(page = 1) {
         alert('Terjadi kesalahan saat memuat data');
     });
 }
+function downloadPDF() {
+    window.open('index_admin_utama.php?page_admin_utama=data_inventaris_v/cetak_inventaris', '_blank');
+}
 
 function showAddForm() {
     window.location.href = 'index_admin_utama.php?page_admin_utama=data_inventaris_v/tambah_inventaris';
-}
-
-function editData(id) {
-    window.location.href = `index_admin_utama.php?page_admin_utama=data_inventaris_v/edit_inventaris&id=${id}`;
-}
-
-function confirmDelete(id) {
-    if(confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-        fetch('index_admin_utama.php?page_admin_utama=data_inventaris_v/hapus_inventaris', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: `id=${id}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('Data berhasil dihapus');
-                loadData(currentPage);
-            } else {
-                alert('Gagal menghapus data');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat menghapus data');
-        });
-    }
-}
-
-function showDetail(id) {
-    window.location.href = `index_admin_utama.php?page_admin_utama=data_inventaris_v/detail_inventaris&id=${id}`;
 }
 
 // Search with debounce
@@ -352,6 +452,37 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => loadData(1), 500);
 });
+function showDetail(data) {
+  let html = `
+    <tr><th>Kode Barang</th><td>${data.kode_barang}</td></tr>
+    <tr><th>Nama Barang</th><td>${data.nama_barang}</td></tr>
+    <tr><th>Kategori</th><td>${data.kategori}</td></tr>
+    <tr><th>Lokasi</th><td>${data.lokasi_simpan}</td></tr>
+    <tr><th>Jumlah</th><td>${data.jumlah}</td></tr>
+    <tr><th>Total</th><td>${data.jumlah_total}</td></tr>
+    <tr><th>Satuan</th><td>${data.satuan}</td></tr>
+    <tr><th>Tgl Pengadaan</th><td>${data.tgl_pengadaan}</td></tr>
+    <tr><th>Kondisi</th><td>${data.kondisi}</td></tr>
+    <tr><th>Sumber</th><td>${data.sumber}</td></tr>
+    <tr><th>Harga</th><td>Rp ${new Intl.NumberFormat('id-ID').format(data.harga)}</td></tr>
+    <tr><th>Keterangan</th><td>${data.keterangan}</td></tr>
+  `;
+  document.getElementById("detailBody").innerHTML = html;
+  document.getElementById("detailModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("detailModal").style.display = "none";
+}
+
+// Klik luar modal untuk menutup
+window.onclick = function(e) {
+  let modal = document.getElementById("detailModal");
+  if (e.target === modal) {
+    closeModal();
+  }
+}
+
 
 // Initial load
 loadData(1);

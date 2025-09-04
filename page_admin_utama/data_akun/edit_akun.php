@@ -151,14 +151,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-actions">
-                <button type="submit" name="submit">Simpan Perubahan</button>
-                <a href="index_admin.php?page_admin=pengguna/data_pengguna">Batal</a>
+                <button type="submit" name="submit">Update</button>
+                <a href="index_admin_utama.php?page_admin_utama=data_akun/data_akun">Batal</a>
             </div>
         </form>
     </div>
 </div>
 
 <style>
+/* ====== Import Font Poppins ====== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 /* ====== Reset ringkas & variabel ====== */
 :root{
   --bg:#f5f7fb;
@@ -178,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 html,body{height:100%}
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
+  font-family:'Poppins', sans-serif !important;
   color:var(--text);
   background:var(--bg);
   line-height:1.5;
@@ -247,7 +250,7 @@ textarea{
 
 textarea{ min-height:96px; resize:vertical; }
 
-/* Focus state yang jelas (tanpa animasi) */
+/* Focus state */
 .form-control:focus,
 input:focus,
 select:focus,
@@ -288,7 +291,6 @@ input[type="file"]{
   height:auto;
   border-radius:6px;
 }
-
 /* ====== Actions ====== */
 .form-actions{
   margin-top:22px;
@@ -299,8 +301,6 @@ input[type="file"]{
   flex-wrap:wrap;
 }
 
-.btn-submit,
-.btn-cancel,
 .form-actions a,
 .form-actions button{
   display:inline-flex;
@@ -313,27 +313,41 @@ input[type="file"]{
   text-decoration:none;
   border:1px solid transparent;
   cursor:pointer;
+  transition: all .25s ease;
 }
 
+/* Tombol Update (Hijau) */
+.form-actions button[type="submit"],
 .btn-submit{
   background:var(--success);
   color:#fff;
   border-color:var(--success);
 }
-.btn-cancel{
-  background:#fff;
-  color:var(--danger);
-  border:1px solid var(--danger);
+.form-actions button[type="submit"]:hover,
+.btn-submit:hover{
+  background:#0e9f6e; /* sedikit lebih gelap */
 }
 
-/* State non-aktif (kalau dibutuhkan) */
+/* Tombol Batal (Merah) */
+.form-actions a,
+.btn-cancel{
+  background:var(--danger);
+  color:#fff;
+  border-color:var(--danger);
+}
+.form-actions a:hover,
+.btn-cancel:hover{
+  background:#dc2626; /* merah lebih gelap */
+}
+
+
+/* State non-aktif */
 button:disabled,
 .btn-disabled{
   opacity:.6;
   cursor:not-allowed;
 }
 
-/* ====== Bantuan layout kecil ====== */
 .help-text{
   font-size:12.5px;
   color:var(--muted);
