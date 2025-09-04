@@ -690,59 +690,59 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                         Stasi St. Fransiskus Asisi 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_empang') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/st_paulus_empang">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_empang/data_inventaris_paulus_empang">
                         Stasi St. Paulus Empang
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_maria_karmel') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/sta_maria_karmel">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/maria/data_inventaris_maria">
                         Stasi Sta. Maria Bunda Karmel 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_elisabet') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/sta_elisabet">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/elisabet/data_inventaris_elisabet">
                         Stasi Sta. Elisabet
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_petrus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/st_petrus">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/petrus/data_inventaris_petrus">
                         Stasi St. Petrus 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_stefanus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/st_stefanus">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/stefanus/data_inventaris_stefanus">
                         Stasi St. Stefanus
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_mikael') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/st_mikael">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/mikael/data_inventaris_mikael">
                         Stasi St. Mikael
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_merambai') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/st_paulus_merambai">
+                        href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_rasul/data_inventaris_paulus_rasul">
                         Stasi St. Paulus Rasul
                         </a>
 
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo (strpos($halaman, 'data_transaksi_v') !== false) ? 'active' : ''; ?>" href="#" id="transaksiDropdown">
+                    <a class="nav-link dropdown-toggle <?php echo (strpos($halaman, 'peminjaman/data_peminjaman') !== false) ? 'active' : ''; ?>" href="#" id="transaksiDropdown">
                         <i class="fas fa-exchange-alt"></i> Data Transaksi
                     </a>
                     <div class="dropdown-menu" id="transaksiDropdownMenu">
-                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi_v/data_transaksi_v') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_transaksi_v">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/peminjaman/data_peminjaman') ? 'active' : ''; ?>" 
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman">
                            Peminjaman
                         </a>
-                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi_v/data_pengembalian') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_pengembalian">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_pengembalian') ? 'active' : ''; ?>" 
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_pengembalian">
                            Pengembalian
                         </a>
-                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi_v/data_kerusakan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_kerusakan">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_kerusakan') ? 'active' : ''; ?>" 
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_kerusakan">
                            Kerusakan
                         </a>
-                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi_v/data_perbaikan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_perbaikan">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_perbaikan') ? 'active' : ''; ?>" 
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_perbaikan">
                            Perbaikan
                         </a>
-                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi_v/data_mutasi') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_mutasi">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_mutasi') ? 'active' : ''; ?>" 
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_mutasi">
                            Mutasi
                         </a>
                     </div>
@@ -764,7 +764,7 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                 </div>
                 <div class="user-info">
                     <div class="username"><?php echo $_SESSION['username']; ?></div>
-                    <div class="user-role">Administrator</div>
+                    <div class="user-role">Admin Utama</div>
                 </div>
             </div>
             <div class="user-popup-links">

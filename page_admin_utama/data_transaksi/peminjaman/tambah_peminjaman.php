@@ -4,8 +4,6 @@ require_once("config/koneksi.php");
 // Fungsi generate nomor peminjaman otomatis
 function generateNoPeminjaman($koneksi) {
     $prefix = "PJ";
-
-    // Ambil no_peminjaman terakhir
     $query = "SELECT no_peminjaman FROM peminjaman 
               WHERE no_peminjaman LIKE '$prefix%' 
               ORDER BY no_peminjaman DESC LIMIT 1";
@@ -17,11 +15,10 @@ function generateNoPeminjaman($koneksi) {
     } else {
         $newNumber = "0000001"; 
     }
-
     return $prefix . $newNumber; 
 }
 
-$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang FROM inventaris ORDER BY kode_barang ASC");
+$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan FROM inventaris ORDER BY kode_barang ASC");
 
 if(isset($_POST['submit'])) {
     $no_peminjaman = generateNoPeminjaman($koneksi);
@@ -42,15 +39,16 @@ if(isset($_POST['submit'])) {
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
               
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "sssssisisss", 
-        $no_peminjaman, $tanggal_pinjam, $lokasi_simpan, $kode_barang, $nama_barang, 
-        $jumlah_pinjam, $satuan, $lokasi_pinjam, $nama_peminjam, $keterangan, $status
-    );
+    mysqli_stmt_bind_param($stmt, "sssssisssss", 
+    $no_peminjaman, $tanggal_pinjam, $lokasi_simpan, $kode_barang, $nama_barang, 
+    $jumlah_pinjam, $satuan, $lokasi_pinjam, $nama_peminjam, $keterangan, $status
+);
+
     
     if(mysqli_stmt_execute($stmt)) {
         echo "<script>
                 alert('Data transaksi berhasil ditambahkan');
-                window.location.href='index_admin_utama.php?page_admin_utama=data_transaksi_v/data_transaksi_v';
+                window.location.href='index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman';
               </script>";
     } else {
         echo "<script>alert('Gagal menambahkan data transaksi');</script>";
@@ -78,33 +76,38 @@ if(isset($_POST['submit'])) {
             </div>
 
             <div class="form-row">
-                <div class="form-group half">
-                    <label for="lokasi_simpan">Lokasi Simpan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
-                </div>
-                <div class="form-group half">
-                    <label for="kode_barang">Kode Barang</label>
-                    <select id="kode_barang" name="kode_barang" required onchange="updateNamaBarang()" class="form-control">
-                        <option value="">Pilih Kode Barang</option>
-                        <?php while($row = mysqli_fetch_assoc($inventaris)) { ?>
-                            <option value="<?= $row['kode_barang']; ?>" data-nama="<?= htmlspecialchars($row['nama_barang']); ?>">
-                                <?= $row['kode_barang']; ?>
-                            </option>
-                        <?php } ?>
-                    </select>
-                </div>
-            </div>
+    <div class="form-group half">
+        <label for="nama_barang">Nama Barang</label>
+        <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
+            <option value="">Pilih Nama Barang</option>
+            <?php 
+            // Reset pointer inventaris
+            mysqli_data_seek($inventaris, 0);
+            while($row = mysqli_fetch_assoc($inventaris)) { ?>
+                <option value="<?= htmlspecialchars($row['nama_barang']); ?>" 
+                        data-kode="<?= $row['kode_barang']; ?>" 
+                        data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>">
+                    <?= htmlspecialchars($row['nama_barang']); ?>
+                </option>
+            <?php } ?>
+        </select>
+    </div>
+    <div class="form-group half">
+        <label for="kode_barang">Kode Barang</label>
+        <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
+    </div>
+</div>
 
-            <div class="form-row">
-                <div class="form-group half">
-                    <label for="nama_barang">Nama Barang</label>
-                    <input type="text" id="nama_barang" name="nama_barang" readonly required class="form-control">
-                </div>
-                <div class="form-group half">
-                    <label for="jumlah_pinjam">Jumlah Pinjam</label>
-                    <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control">
-                </div>
-            </div>
+<div class="form-row">
+    <div class="form-group half">
+        <label for="lokasi_simpan">Lokasi Simpan</label>
+        <input type="text" id="lokasi_simpan" name="lokasi_simpan" readonly required class="form-control">
+    </div>
+    <div class="form-group half">
+        <label for="jumlah_pinjam">Jumlah Pinjam</label>
+        <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control">
+    </div>
+</div>
 
             <div class="form-row">
                 <div class="form-group half">
@@ -112,8 +115,23 @@ if(isset($_POST['submit'])) {
                     <input type="text" id="satuan" name="satuan" required class="form-control">
                 </div>
                 <div class="form-group half">
-                    <label for="lokasi_pinjam">Lokasi Pinjam</label>
-                    <input type="text" id="lokasi_pinjam" name="lokasi_pinjam" required class="form-control">
+                    <label for="lokasi_pinjam">Lokasi Penggunaan</label>
+                    <select id="lokasi_pinjam" name="lokasi_pinjam" required class="form-control">
+                        <option value="Paroki">Paroki</option>
+                        <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
+                        <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
+                        <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
+                        <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
+                        <option value="Stasi St. Paulus (Inti 4)">Stasi St. Paulus (Inti 4)</option>
+                        <option value="Stasi St. Fransiskus Asisi (Inti 7)">Stasi St. Fransiskus Asisi (Inti 7)</option>
+                        <option value="Stasi St. Paulus (Empang Pandan)">Stasi St. Paulus (Empang Pandan)</option>
+                        <option value="Stasi Sta. Maria Bunda Karmel (Teluk Merbau)">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
+                        <option value="Stasi Sta. Elisabet (Sialang Sakti)">Stasi Sta. Elisabet (Sialang Sakti)</option>
+                        <option value="Stasi St. Petrus (Pangkalan Makmur)">Stasi St. Petrus (Pangkalan Makmur)</option>
+                        <option value="Stasi St. Stefanus (Zamrud)">Stasi St. Stefanus (Zamrud)</option>
+                        <option value="Stasi St. Mikael (Siak Raya)">Stasi St. Mikael (Siak Raya)</option>
+                        <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
+                    </select>
                 </div>
             </div>
 
@@ -139,18 +157,21 @@ if(isset($_POST['submit'])) {
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
-                <a href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_transaksi_v" class="btn-cancel">Batal</a>
+                <a href="index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman" class="btn-cancel">Batal</a>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function updateNamaBarang() {
-    const select = document.getElementById('kode_barang');
-    const selectedOption = select.options[select.selectedIndex];
-    const namaBarang = selectedOption.getAttribute('data-nama');
-    document.getElementById('nama_barang').value = namaBarang || '';
+function updateBarang() {
+    var select = document.getElementById('nama_barang');
+    var selected = select.options[select.selectedIndex];
+    var kode = selected.getAttribute('data-kode') || '';
+    var lokasi = selected.getAttribute('data-lokasi') || '';
+
+    document.getElementById('kode_barang').value = kode;
+    document.getElementById('lokasi_simpan').value = lokasi;
 }
 </script>
 

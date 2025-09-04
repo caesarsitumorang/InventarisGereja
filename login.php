@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $result = mysqli_query($koneksi, $query);
 
     if ($data = mysqli_fetch_assoc($result)) {
-        if ($password === $data['password']) {
+        // Gunakan password_verify untuk cek hash
+        if (password_verify($password, $data['password'])) {
             $_SESSION['username'] = $data['username'];
             $_SESSION['id_akun'] = $data['id_akun'];
             $_SESSION['peran'] = $data['peran'];
@@ -42,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
