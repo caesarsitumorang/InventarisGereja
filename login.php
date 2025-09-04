@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $result = mysqli_query($koneksi, $query);
 
     if ($data = mysqli_fetch_assoc($result)) {
-        // Cek password tanpa hash
         if ($password === $data['password']) {
             $_SESSION['username'] = $data['username'];
             $_SESSION['id_akun'] = $data['id_akun'];
@@ -44,190 +43,223 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 }
 ?>
 
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <title>Login - Cafe Kafka</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Gereja Katolik St. Yohanes Pembaptis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #a35002ff, #8b5c00ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
 
+    .login-container {
+        background: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 48px 40px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        position: relative;
+        text-align: center;
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .logo-container img {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid #3b82f6;
+    }
+
+    .logo-container::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+    }
+
+    h1 {
+        color: #1e40af;
+        font-size: 32px;
+        margin-bottom: 8px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+        color: #6b7280;
+        font-size: 16px;
+        margin-bottom: 32px;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 18px;
+        z-index: 1;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 16px 16px 16px 50px;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        font-size: 16px;
+        font-weight: 500;
+        background-color: #f9fafb;
+        transition: all 0.3s ease;
+        color: #1f2937;
+    }
+
+    .form-input:focus {
+        border-color: #3b82f6;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .form-input:focus + i {
+        color: #3b82f6;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
+        margin-top: 8px;
+    }
+
+    .login-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    .footer-text {
+        margin-top: 32px;
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+        line-height: 1.4;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 24px;
+    }
+
+    .security-note {
+        margin-top: 20px;
+        padding: 12px 16px;
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #1e40af;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .security-note i {
+        font-size: 16px;
+        color: #3b82f6;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
         .login-container {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            display: flex;
-            max-width: 850px;
-            overflow: hidden;
+            padding: 32px 24px;
+            margin: 16px;
         }
-
-        .icon-side {
-            background: #ff7b00;
-            color: #fff;
-            padding: 40px;
-            text-align: center;
-            flex: 1;
-        }
-
-        .icon-side i {
-            font-size: 70px;
-            margin-bottom: 20px;
-        }
-
-        .icon-side h2 {
-            margin: 0;
+        
+        h1 {
             font-size: 28px;
         }
-
-        .icon-side p {
-            font-size: 14px;
-            margin-top: 10px;
+        
+        .logo-container img {
+            width: 50px;
+            height: 50px;
         }
-
-        .form-side {
-            padding: 40px;
-            flex: 1;
-        }
-
-        .welcome-title {
-            font-size: 26px;
-            margin-bottom: 10px;
-            color: #ff7b00;
-        }
-
-       .form-group {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.form-input {
-    width: 100%;
-    padding: 12px 40px 12px 40px; /* ada ruang kiri & kanan buat ikon */
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.input-icon {
-    position: absolute;
-    left: 12px;   /* posisikan ke kiri */
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
-}
-
-
-        .login-btn {
-            background: #ff7b00;
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-
-        .login-btn:hover {
-            background: #e06900;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 14px;
-            color: #aaa;
-        }
-
-        .form-links a {
-            text-decoration: none;
-            font-size: 14px;
-            color: #ff7b00;
-        }
-
-        .form-links a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Left Side - Branding -->
-        <div class="icon-side">
-            <i class="fas fa-mug-hot"></i>
-            <h2>Cafe Kafka</h2>
-            <p>"Nikmati kopi terbaik dengan suasana hangat di Cafe Kafka"</p>
-        </div>
-
-        <!-- Right Side - Login Form -->
-        <div class="form-side">
-            <h1 class="welcome-title">Selamat Datang!</h1>
-            <p>Masuk ke akun Cafe Kafka Anda</p>
-
-            <form method="post" id="loginForm">
-                <div class="form-group">
-                    <input type="text" name="username" class="form-input" placeholder="Username" required>
-                    <i class="fas fa-user input-icon"></i>
-                </div>
-
-                <div class="form-group">
-                    <input type="password" name="password" class="form-input" placeholder="Password" required id="passwordInput">
-                    <i class="fas fa-eye input-icon" id="togglePassword" style="cursor: pointer;"></i>
-                </div>
-
-                <button type="submit" name="submit" class="login-btn">
-                    <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
-                    Masuk ke Cafe Kafka
-                </button>
-            </form>
-
-            <div class="divider">
-                <span>atau</span>
-            </div>
-
-            <div class="form-links">
-                <a href="register.php">
-                    <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
-                    Belum punya akun? Daftar di sini
-                </a>
-            </div>
-        </div>
+<div class="login-container">
+    <div class="logo-container">
+        <img src="img/logo.jpg" alt="Logo Gereja">
+        <img src="img/logo.jpg" alt="Logo Gereja">
     </div>
 
-    <script>
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('passwordInput');
-            const toggleIcon = document.getElementById('togglePassword');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
-    </script>
+    <h1>MASUK</h1>
+    <p class="subtitle">Silakan masuk ke akun Anda</p>
+
+    <form method="post">
+        <div class="form-group">
+            <input type="text" name="username" class="form-input" placeholder="Username" required>
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="form-group">
+            <input type="password" name="password" class="form-input" placeholder="Password" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <button type="submit" name="submit" class="login-btn">
+            <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+            Masuk
+        </button>
+    </form>
+
+    <div class="footer-text">
+        <strong>Gereja Katolik St. Yohanes Pembaptis</strong><br>
+        Perawang
+    </div>
+</div>
 </body>
 </html>

@@ -1,61 +1,55 @@
 <?php
 require_once("config/koneksi.php");
 
-// Get data inventaris
-if(isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $query = "SELECT * FROM inventaris WHERE id = ?";
-    $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $data = mysqli_fetch_assoc($result);
-    
-    if(!$data) {
-        echo "<script>
-                alert('Data tidak ditemukan');
-                window.location.href='index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v';
-              </script>";
-        exit;
+function generateKodeBarang($koneksi) {
+    $prefix = "KB";
+
+    $query = "SELECT kode_barang FROM inventaris 
+              WHERE kode_barang LIKE '$prefix%' 
+              ORDER BY kode_barang DESC LIMIT 1";
+    $result = mysqli_query($koneksi, $query);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        $lastNumber = (int)substr($row['kode_barang'], 2); 
+        $newNumber = str_pad($lastNumber + 1, 4, "0", STR_PAD_LEFT);
+    } else {
+        $newNumber = "0001";
     }
+
+    return $prefix . $newNumber; 
 }
 
-// Handle form submission
 if(isset($_POST['submit'])) {
-    $id = (int)$_POST['id'];
-    $kode_barang = mysqli_real_escape_string($koneksi, $_POST['kode_barang']);
-    $nama_barang = mysqli_real_escape_string($koneksi, $_POST['nama_barang']);
+    $kode_barang = mysqli_real_escape_string($koneksi, $_POST['kode_barang']); 
+    $nama_barang = substr(mysqli_real_escape_string($koneksi, $_POST['nama_barang']), 0, 50);
     $kategori = mysqli_real_escape_string($koneksi, $_POST['kategori']);
-    $lokasi_simpan = mysqli_real_escape_string($koneksi, $_POST['lokasi_simpan']);
+    $lokasi_simpan = substr(mysqli_real_escape_string($koneksi, $_POST['lokasi_simpan']), 0, 100);
     $jumlah = (int)$_POST['jumlah'];
     $jumlah_total = (int)$_POST['jumlah_total'];
-    $satuan = mysqli_real_escape_string($koneksi, $_POST['satuan']);
+    $satuan = substr(mysqli_real_escape_string($koneksi, $_POST['satuan']), 0, 10);
     $tgl_pengadaan = mysqli_real_escape_string($koneksi, $_POST['tgl_pengadaan']);
     $kondisi = mysqli_real_escape_string($koneksi, $_POST['kondisi']);
     $sumber = mysqli_real_escape_string($koneksi, $_POST['sumber']);
-    $harga = str_replace([',', '.'], '', $_POST['harga']);
-    $keterangan = mysqli_real_escape_string($koneksi, $_POST['keterangan']);
+    $harga = substr(str_replace([',', '.'], '', $_POST['harga']), 0, 30);
+    $keterangan = substr(mysqli_real_escape_string($koneksi, $_POST['keterangan']), 0, 100);
 
-    $query = "UPDATE inventaris SET 
-              kode_barang=?, nama_barang=?, kategori=?, lokasi_simpan=?, 
-              jumlah=?, jumlah_total=?, satuan=?, tgl_pengadaan=?, 
-              kondisi=?, sumber=?, harga=?, keterangan=? 
-              WHERE id=?";
+    $query = "INSERT INTO inventaris 
+              (kode_barang, nama_barang, kategori, lokasi_simpan, jumlah, jumlah_total, satuan, tgl_pengadaan, kondisi, sumber, harga, keterangan) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
               
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "ssssiissssisi", 
-        $kode_barang, $nama_barang, $kategori, $lokasi_simpan,
-        $jumlah, $jumlah_total, $satuan, $tgl_pengadaan,
-        $kondisi, $sumber, $harga, $keterangan, $id
+    mysqli_stmt_bind_param($stmt, "ssssiissssss", 
+        $kode_barang, $nama_barang, $kategori, $lokasi_simpan, $jumlah, $jumlah_total,
+        $satuan, $tgl_pengadaan, $kondisi, $sumber, $harga, $keterangan
     );
     
     if(mysqli_stmt_execute($stmt)) {
         echo "<script>
-                alert('Data berhasil diupdate');
-                window.location.href='index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v';
+                alert('Data berhasil ditambahkan');
+                window.location.href='index_admin_utama.php?page_admin_utama=data_inventaris/paulus_inti/data_inventaris_paulus_inti';
               </script>";
     } else {
-        echo "<script>alert('Gagal mengupdate data');</script>";
+        echo "<script>alert('Gagal menambahkan data');</script>";
     }
 }
 ?>
@@ -63,23 +57,20 @@ if(isset($_POST['submit'])) {
 <div class="form-container">
     <div class="form-card">
         <div class="form-header">
-            <h2>Edit Inventaris</h2>
+            <h2>Tambah Inventaris</h2>
         </div>
         
-        <form method="POST" class="add-form" onsubmit="return validateForm()">
-            <input type="hidden" name="id" value="<?= $data['id'] ?>">
-            
+        <form method="POST" class="add-form ">
             <div class="form-row">
                 <div class="form-group half">
                     <label for="kode_barang">Kode Barang</label>
-                    <input type="text" id="kode_barang" name="kode_barang" 
-                           value="<?= htmlspecialchars($data['kode_barang']) ?>" required class="form-control">
+                    <input type="text" id="kode_barang" name="kode_barang" class="form-control"
+                           value="<?= generateKodeBarang($koneksi); ?>" readonly>
                 </div>
 
                 <div class="form-group half">
                     <label for="nama_barang">Nama Barang</label>
-                    <input type="text" id="nama_barang" name="nama_barang" 
-                           value="<?= htmlspecialchars($data['nama_barang']) ?>" required class="form-control">
+                    <input type="text" id="nama_barang" name="nama_barang" maxlength="50" required class="form-control">
                 </div>
             </div>
 
@@ -88,41 +79,52 @@ if(isset($_POST['submit'])) {
                     <label for="kategori">Kategori</label>
                     <select id="kategori" name="kategori" required class="form-control">
                         <option value="">Pilih Kategori</option>
-                        <option value="Bangunan" <?= ($data['kategori'] == 'Bangunan') ? 'selected' : '' ?>>Bangunan</option>
-                        <option value="Liturgi" <?= ($data['kategori'] == 'Liturgi') ? 'selected' : '' ?>>Liturgi</option>
-                        <option value="Pakaian Misa" <?= ($data['kategori'] == 'Pakaian Misa') ? 'selected' : '' ?>>Pakaian Misa</option>
-                        <option value="Pakaian Misdinar" <?= ($data['kategori'] == 'Pakaian Misdinar') ? 'selected' : '' ?>>Pakaian Misdinar</option>
-                        <option value="Buku Misa" <?= ($data['kategori'] == 'Buku Misa') ? 'selected' : '' ?>>Buku Misa</option>
-                        <option value="Mebulair" <?= ($data['kategori'] == 'Mebulair') ? 'selected' : '' ?>>Mebulair</option>
-                        <option value="Alat Elektronik" <?= ($data['kategori'] == 'Alat Elektronik') ? 'selected' : '' ?>>Alat Elektronik</option>
-                        <option value="Alat Rumah Tangga" <?= ($data['kategori'] == 'Alat Rumah Tangga') ? 'selected' : '' ?>>Alat Rumah Tangga</option>
+                        <option value="Bangunan">Bangunan</option>
+                        <option value="Liturgi">Liturgi</option>
+                        <option value="Pakaian Misa">Pakaian Misa</option>
+                        <option value="Pakaian Misdinar">Pakaian Misdinar</option>
+                        <option value="Buku Misa">Buku Misa</option>
+                        <option value="Mebulair">Mebulair</option>
+                        <option value="Alat Elektronik">Alat Elektronik</option>
+                        <option value="Alat Rumah Tangga">Alat Rumah Tangga</option>
                     </select>
                 </div>
 
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Penyimpanan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" 
-                           value="<?= htmlspecialchars($data['lokasi_simpan']) ?>" required class="form-control">
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
+                        <option value="Paroki">Paroki</option>
+                        <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
+                        <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
+                        <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
+                        <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
+                        <option value="Stasi St. Paulus (Inti 4)">Stasi St. Paulus (Inti 4)</option>
+                        <option value="Stasi St. Fransiskus Asisi (Inti 7)">Stasi St. Fransiskus Asisi (Inti 7)</option>
+                        <option value="Stasi St. Paulus (Empang Pandan)">Stasi St. Paulus (Empang Pandan)</option>
+                        <option value="Stasi Sta. Maria Bunda Karmel (Teluk Merbau)">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
+                        <option value="Stasi Sta. Elisabet (Sialang Sakti)">Stasi Sta. Elisabet (Sialang Sakti)</option>
+                        <option value="Stasi St. Petrus (Pangkalan Makmur)">Stasi St. Petrus (Pangkalan Makmur)</option>
+                        <option value="Stasi St. Stefanus (Zamrud)">Stasi St. Stefanus (Zamrud)</option>
+                        <option value="Stasi St. Mikael (Siak Raya)">Stasi St. Mikael (Siak Raya)</option>
+                        <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
+                    </select>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group third">
                     <label for="jumlah">Jumlah</label>
-                    <input type="number" id="jumlah" name="jumlah" 
-                           value="<?= htmlspecialchars($data['jumlah']) ?>" required class="form-control" min="0">
+                    <input type="number" id="jumlah" name="jumlah" required class="form-control" min="0">
                 </div>
 
                 <div class="form-group third">
                     <label for="jumlah_total">Jumlah Total</label>
-                    <input type="number" id="jumlah_total" name="jumlah_total" 
-                           value="<?= htmlspecialchars($data['jumlah_total']) ?>" required class="form-control" min="0">
+                    <input type="number" id="jumlah_total" name="jumlah_total" required class="form-control" min="0">
                 </div>
 
                 <div class="form-group third">
                     <label for="satuan">Satuan</label>
-                    <input type="text" id="satuan" name="satuan" 
-                           value="<?= htmlspecialchars($data['satuan']) ?>" required class="form-control">
+                    <input type="text" id="satuan" name="satuan" maxlength="10" required class="form-control">
                 </div>
             </div>
 
@@ -131,8 +133,8 @@ if(isset($_POST['submit'])) {
                     <label for="kondisi">Kondisi</label>
                     <select id="kondisi" name="kondisi" required class="form-control">
                         <option value="">Pilih Kondisi</option>
-                        <option value="Baru" <?= ($data['kondisi'] == 'Baru') ? 'selected' : '' ?>>Baru</option>
-                        <option value="Lama" <?= ($data['kondisi'] == 'Lama') ? 'selected' : '' ?>>Lama</option>
+                        <option value="Baru">Baru</option>
+                        <option value="Lama">Lama</option>
                     </select>
                 </div>
 
@@ -140,70 +142,42 @@ if(isset($_POST['submit'])) {
                     <label for="sumber">Sumber Pengadaan</label>
                     <select id="sumber" name="sumber" required class="form-control">
                         <option value="">Pilih Sumber</option>
-                        <option value="Beli" <?= ($data['sumber'] == 'Beli') ? 'selected' : '' ?>>Beli</option>
-                        <option value="Donasi" <?= ($data['sumber'] == 'Donasi') ? 'selected' : '' ?>>Donasi</option>
-                        <option value="Hibah" <?= ($data['sumber'] == 'Hibah') ? 'selected' : '' ?>>Hibah</option>
+                        <option value="Beli">Beli</option>
+                        <option value="Donasi">Donasi</option>
+                        <option value="Hibah">Hibah</option>
                     </select>
                 </div>
 
                 <div class="form-group third">
                     <label for="tgl_pengadaan">Tanggal Pengadaan</label>
-                    <input type="date" id="tgl_pengadaan" name="tgl_pengadaan" 
-                           value="<?= htmlspecialchars($data['tgl_pengadaan']) ?>" required class="form-control">
+                    <input type="date" id="tgl_pengadaan" name="tgl_pengadaan" required class="form-control">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group half">
                     <label for="harga">Harga</label>
-                    <input type="text" id="harga" name="harga" 
-                           value="<?= number_format($data['harga'], 0, ',', '.') ?>" 
-                           required class="form-control" onkeyup="formatRupiah(this)">
+                    <input type="text" id="harga" name="harga" required class="form-control" 
+                           onkeyup="formatRupiah(this)" maxlength="30">
                 </div>
 
                 <div class="form-group half">
                     <label for="keterangan">Keterangan</label>
-                    <textarea id="keterangan" name="keterangan" class="form-control"><?= htmlspecialchars($data['keterangan']) ?></textarea>
+                    <textarea id="keterangan" name="keterangan" maxlength="100" class="form-control"></textarea>
                 </div>
             </div>
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">
-                    <i class="fas fa-save"></i> Simpan Perubahan
+                    <i class="fas fa-save"></i> Simpan
                 </button>
-                <a href="index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v" class="btn-cancel">
+                <a href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_inti/data_inventaris_paulus_inti" class="btn-cancel">
                     <i class="fas fa-times"></i> Batal
                 </a>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-/* Same styles as tambah_inventaris.php */
-</style>
-
-<script>
-function formatRupiah(input) {
-    let value = input.value.replace(/[^\d]/g, '');
-    if(value != '') {
-        value = parseInt(value).toLocaleString('id-ID');
-        input.value = value;
-    }
-}
-
-function validateForm() {
-    const jumlah = parseInt(document.getElementById('jumlah').value) || 0;
-    const jumlahTotal = parseInt(document.getElementById('jumlah_total').value) || 0;
-    
-    if(jumlahTotal < jumlah) {
-        alert('Jumlah total tidak boleh lebih kecil dari jumlah tersedia');
-        return false;
-    }
-    
-    return true;
-}
-</script>
 
 
 <style>
@@ -320,7 +294,7 @@ textarea.form-control {
 }
 
 .btn-submit {
-    background:#3498db;
+    background: #3498db;
     color: white;
     border: none;
 }

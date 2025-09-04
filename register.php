@@ -1,11 +1,10 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Register - Cafe Kafka</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -123,14 +122,12 @@
 </head>
 <body>
     <div class="login-container">
-        <!-- Left Side -->
         <div class="icon-side">
             <i class="fas fa-user-plus"></i>
             <h2>Cafe Kafka</h2>
             <p>"Gabung sekarang dan nikmati layanan Cafe Kafka"</p>
         </div>
 
-        <!-- Right Side - Register Form -->
         <div class="form-side">
             <h1 class="welcome-title">Buat Akun Baru</h1>
             <p>Isi data di bawah untuk mendaftar</p>
@@ -173,54 +170,49 @@
 </html>
 
 <?php
-require_once("config/koneksi.php");
+// require_once("config/koneksi.php");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['submit']) && $_POST['submit'] == 'Daftar') {
-        $username = trim($_POST['username']);
-        $password = $_POST['password'];
-        $nama_lengkap = trim($_POST['nama_lengkap']);
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     if (isset($_POST['submit']) && $_POST['submit'] == 'Daftar') {
+//         $username = trim($_POST['username']);
+//         $password = $_POST['password'];
+//         $nama_lengkap = trim($_POST['nama_lengkap']);
 
-        if (empty($username) || empty($password) || empty($nama_lengkap)) {
-            echo "<script>alert('Semua field wajib diisi!'); window.location='register.php';</script>";
-            exit;
-        }
+//         if (empty($username) || empty($password) || empty($nama_lengkap)) {
+//             echo "<script>alert('Semua field wajib diisi!'); window.location='register.php';</script>";
+//             exit;
+//         }
+//         $check = mysqli_query($koneksi, "SELECT * FROM users WHERE username='$username'");
+//         if (mysqli_num_rows($check) > 0) {
+//             echo "<script>alert('Username sudah terdaftar!'); window.location='register.php';</script>";
+//             exit;
+//         }
 
-        // Cek apakah username sudah digunakan
-        $check = mysqli_query($koneksi, "SELECT * FROM users WHERE username='$username'");
-        if (mysqli_num_rows($check) > 0) {
-            echo "<script>alert('Username sudah terdaftar!'); window.location='register.php';</script>";
-            exit;
-        }
+//         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Hash password untuk keamanan
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+//         $insertUser = mysqli_query($koneksi, "
+//             INSERT INTO users (username, password, role) 
+//             VALUES ('$username', '$hashedPassword', 'pelanggan')
+//         ");
 
-        // Insert ke tabel users (role default = pelanggan)
-        $insertUser = mysqli_query($koneksi, "
-            INSERT INTO users (username, password, role) 
-            VALUES ('$username', '$hashedPassword', 'pelanggan')
-        ");
+//         if ($insertUser) {
+//             $insertPelanggan = mysqli_query($koneksi, "
+//                 INSERT INTO pelanggan (username, password, nama_lengkap) 
+//                 VALUES ('$username', '$hashedPassword', '$nama_lengkap')
+//             ");
 
-        if ($insertUser) {
-            // Insert juga ke tabel pelanggan (hanya username, password, nama lengkap)
-            $insertPelanggan = mysqli_query($koneksi, "
-                INSERT INTO pelanggan (username, password, nama_lengkap) 
-                VALUES ('$username', '$hashedPassword', '$nama_lengkap')
-            ");
-
-            if ($insertPelanggan) {
-                echo "<script>alert('Registrasi berhasil! Silakan login.'); window.location='login.php';</script>";
-                exit;
-            } else {
-                echo "<script>alert('Gagal menyimpan data ke tabel pelanggan!'); window.location='register.php';</script>";
-                exit;
-            }
-        } else {
-            echo "<script>alert('Gagal menyimpan data ke tabel users!'); window.location='register.php';</script>";
-            exit;
-        }
-    }
-}
+//             if ($insertPelanggan) {
+//                 echo "<script>alert('Registrasi berhasil! Silakan login.'); window.location='login.php';</script>";
+//                 exit;
+//             } else {
+//                 echo "<script>alert('Gagal menyimpan data ke tabel pelanggan!'); window.location='register.php';</script>";
+//                 exit;
+//             }
+//         } else {
+//             echo "<script>alert('Gagal menyimpan data ke tabel users!'); window.location='register.php';</script>";
+//             exit;
+//         }
+//     }
+// } -->
 ?>
 

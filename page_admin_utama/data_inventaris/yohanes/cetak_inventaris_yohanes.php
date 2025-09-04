@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '../../../vendor/autoload.php'; 
+require_once __DIR__ . '../../../../vendor/autoload.php'; 
 include "../../../config/koneksi.php";
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -25,8 +25,10 @@ if ($id_admin) {
 }
 
 // Ambil data inventaris
-$query = "SELECT * FROM inventaris ORDER BY tgl_pengadaan DESC";
+$lokasi = "Stasi St. Yohanes Penginjil (Minas Jaya)";
+$query = "SELECT * FROM inventaris WHERE lokasi_simpan = '$lokasi' ORDER BY tgl_pengadaan DESC";
 $result = mysqli_query($koneksi, $query);
+
 
 // Get summary data
 $summary = mysqli_fetch_assoc(mysqli_query($koneksi, "
@@ -38,6 +40,7 @@ $summary = mysqli_fetch_assoc(mysqli_query($koneksi, "
         COUNT(DISTINCT kategori) as total_kategori,
         SUM(harga) as total_nilai
     FROM inventaris
+    WHERE lokasi_simpan = '$lokasi'
 "));
 
 // Path logo

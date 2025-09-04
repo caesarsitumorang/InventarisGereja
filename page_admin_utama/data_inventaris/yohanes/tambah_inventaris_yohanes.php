@@ -4,14 +4,12 @@ require_once("config/koneksi.php");
 function generateKodeBarang($koneksi) {
     $prefix = "KB";
 
-    // Ambil kode barang terakhir
     $query = "SELECT kode_barang FROM inventaris 
               WHERE kode_barang LIKE '$prefix%' 
               ORDER BY kode_barang DESC LIMIT 1";
     $result = mysqli_query($koneksi, $query);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        // Ambil angka dari kode terakhir
         $lastNumber = (int)substr($row['kode_barang'], 2); 
         $newNumber = str_pad($lastNumber + 1, 4, "0", STR_PAD_LEFT);
     } else {
@@ -48,7 +46,7 @@ if(isset($_POST['submit'])) {
     if(mysqli_stmt_execute($stmt)) {
         echo "<script>
                 alert('Data berhasil ditambahkan');
-                window.location.href='index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v';
+                window.location.href='index_admin_utama.php?page_admin_utama=data_inventaris/yohanes/data_inventaris_yohanes';
               </script>";
     } else {
         echo "<script>alert('Gagal menambahkan data');</script>";
@@ -94,7 +92,22 @@ if(isset($_POST['submit'])) {
 
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Penyimpanan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" maxlength="100" required class="form-control">
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
+                        <option value="Paroki">Paroki</option>
+                        <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
+                        <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
+                        <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
+                        <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
+                        <option value="Stasi St. Paulus (Inti 4)">Stasi St. Paulus (Inti 4)</option>
+                        <option value="Stasi St. Fransiskus Asisi (Inti 7)">Stasi St. Fransiskus Asisi (Inti 7)</option>
+                        <option value="Stasi St. Paulus (Empang Pandan)">Stasi St. Paulus (Empang Pandan)</option>
+                        <option value="Stasi Sta. Maria Bunda Karmel (Teluk Merbau)">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
+                        <option value="Stasi Sta. Elisabet (Sialang Sakti)">Stasi Sta. Elisabet (Sialang Sakti)</option>
+                        <option value="Stasi St. Petrus (Pangkalan Makmur)">Stasi St. Petrus (Pangkalan Makmur)</option>
+                        <option value="Stasi St. Stefanus (Zamrud)">Stasi St. Stefanus (Zamrud)</option>
+                        <option value="Stasi St. Mikael (Siak Raya)">Stasi St. Mikael (Siak Raya)</option>
+                        <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
+                    </select>
                 </div>
             </div>
 
@@ -158,7 +171,7 @@ if(isset($_POST['submit'])) {
                 <button type="submit" name="submit" class="btn-submit">
                     <i class="fas fa-save"></i> Simpan
                 </button>
-                <a href="index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v" class="btn-cancel">
+                <a href="index_admin_utama.php?page_admin_utama=data_inventaris/yohanes/data_inventaris_yohanes" class="btn-cancel">
                     <i class="fas fa-times"></i> Batal
                 </a>
             </div>
