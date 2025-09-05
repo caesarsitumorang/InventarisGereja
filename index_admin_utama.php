@@ -730,19 +730,19 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                            Peminjaman
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_pengembalian') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_pengembalian">
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/pengembalian/data_pengembalian">
                            Pengembalian
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_kerusakan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_kerusakan">
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/kerusakan/data_kerusakan">
                            Kerusakan
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_perbaikan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_perbaikan">
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/perbaikan/data_perbaikan">
                            Perbaikan
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_mutasi') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/data_mutasi">
+                           href="index_admin_utama.php?page_admin_utama=data_transaksi/mutasi/data_mutasi">
                            Mutasi
                         </a>
                     </div>

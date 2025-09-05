@@ -293,6 +293,7 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => loadData(1), 500);
 });
+
 function showDetail(data) {
   let html = `
     <tr><th>Kode Barang</th><td>${data.kode_barang}</td></tr>

@@ -76,38 +76,38 @@ if(isset($_POST['submit'])) {
             </div>
 
             <div class="form-row">
-    <div class="form-group half">
-        <label for="nama_barang">Nama Barang</label>
-        <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
-            <option value="">Pilih Nama Barang</option>
-            <?php 
-            // Reset pointer inventaris
-            mysqli_data_seek($inventaris, 0);
-            while($row = mysqli_fetch_assoc($inventaris)) { ?>
-                <option value="<?= htmlspecialchars($row['nama_barang']); ?>" 
-                        data-kode="<?= $row['kode_barang']; ?>" 
-                        data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>">
-                    <?= htmlspecialchars($row['nama_barang']); ?>
-                </option>
-            <?php } ?>
-        </select>
-    </div>
-    <div class="form-group half">
-        <label for="kode_barang">Kode Barang</label>
-        <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
-    </div>
-</div>
+                <div class="form-group half">
+                    <label for="nama_barang">Nama Barang</label>
+                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
+                        <option value="">Pilih Nama Barang</option>
+                        <?php 
+                        // Reset pointer inventaris
+                        mysqli_data_seek($inventaris, 0);
+                        while($row = mysqli_fetch_assoc($inventaris)) { ?>
+                            <option value="<?= htmlspecialchars($row['nama_barang']); ?>" 
+                                    data-kode="<?= $row['kode_barang']; ?>" 
+                                    data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>">
+                                <?= htmlspecialchars($row['nama_barang']); ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <label for="kode_barang">Kode Barang</label>
+                    <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
+                </div>
+            </div>
 
-<div class="form-row">
-    <div class="form-group half">
-        <label for="lokasi_simpan">Lokasi Simpan</label>
-        <input type="text" id="lokasi_simpan" name="lokasi_simpan" readonly required class="form-control">
-    </div>
-    <div class="form-group half">
-        <label for="jumlah_pinjam">Jumlah Pinjam</label>
-        <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control">
-    </div>
-</div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="lokasi_simpan">Lokasi Simpan</label>
+                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" readonly required class="form-control">
+                </div>
+                <div class="form-group half">
+                    <label for="jumlah_pinjam">Jumlah Pinjam</label>
+                    <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control">
+                </div>
+            </div>
 
             <div class="form-row">
                 <div class="form-group half">

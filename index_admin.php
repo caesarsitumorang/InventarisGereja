@@ -9,8 +9,7 @@ if (!isset($_SESSION['username'])) {
 
 require_once("config/koneksi.php");
 
-// Ambil parameter halaman
-$halaman = isset($_GET['page_admin_utama']) ? $_GET['page_admin_utama'] : '';
+$halaman = isset($_GET['page_admin']) ? $_GET['page_admin'] : '';
 $halaman = trim($halaman);
 $halaman = str_replace(['..', './', '//'], '', $halaman);
 
@@ -62,7 +61,6 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
             overflow-x: hidden;
         }
 
-        /* Enhanced Top Bar - FIXED POSITIONING */
         .top-bar {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             padding: 0 2rem;
@@ -228,6 +226,12 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
             height: 100%;
             display: flex;
             align-items: center;
+            position: relative;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
         }
 
         .nav-link {
@@ -246,6 +250,7 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
             margin: 0 2px;
             font-size: 0.9rem;
             letter-spacing: 0.025em;
+            cursor: pointer;
         }
 
         .nav-link:hover {
@@ -276,6 +281,75 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
         .nav-link i {
             font-size: 1.1rem;
             opacity: 0.9;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 15px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            padding: 8px;
+            min-width: 200px;
+            display: none;
+            z-index: 1100;
+            border: 1px solid var(--border-light);
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .dropdown-item.active {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .dropdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Dropdown arrow indicator */
+        .dropdown-toggle::after {
+            content: '';
+            display: inline-block;
+            margin-left: 6px;
+            vertical-align: middle;
+            border-top: 4px solid currentColor;
+            border-right: 4px solid transparent;
+            border-bottom: 0;
+            border-left: 4px solid transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown.show .dropdown-toggle::after {
+            transform: rotate(180deg);
         }
 
         /* Enhanced Logout Button */
@@ -553,7 +627,6 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
     </style>
 </head>
 <body>
-    <!-- Combined Top Bar and Navigation - FIXED HEADER -->
     <header class="top-bar">
         <div class="left-section">
             <div class="user-profile" id="userProfileBtn">
@@ -570,27 +643,106 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
         <nav>
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="index_admin_utama.php" class="nav-link <?php echo empty($halaman) ? 'active' : ''; ?>">
+                    <a href="index_admin.php" class="nav-link <?php echo empty($halaman) ? 'active' : ''; ?>">
                         <i class="fas fa-dashboard"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="index_admin_utama.php?page_admin_utama=data_akun/data_akun" 
+                    <a href="index_admin.php?page_admin=data_akun/data_akun" 
                        class="nav-link <?php echo ($halaman == 'data_akun/data_akun') ? 'active' : ''; ?>">
                         <i class="fas fa-users"></i> Data Akun
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="index_admin_utama.php?page_admin_utama=data_inventaris_v/data_inventaris_v" 
-                       class="nav-link <?php echo ($halaman == 'data_inventaris_v/data_inventaris_v') ? 'active' : ''; ?>">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?php echo (strpos($halaman, 'paroki/data_inventaris_paroki') !== false) ? 'active' : ''; ?>" href="#" id="inventarisDropdown">
                         <i class="fas fa-boxes"></i> Data Inventaris
                     </a>
+                    <div class="dropdown-menu" id="inventarisDropdownMenu" style="max-height: 300px; overflow-y: auto;">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paroki/data_inventaris_paroki') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_inventaris/paroki/data_inventaris_paroki">
+                           Paroki
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/fidelis/data_inventaris_fidelis') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/fidelis/data_inventaris_fidelis">
+                        Stasi St. Fidelis
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/yohanes/data_inventaris_yohanes') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/yohanes/data_inventaris_yohanes">
+                        Stasi St. Yohanes Penginjil 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/agustinus/data_inventaris_agustinus') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/agustinus/data_inventaris_agustinus">
+                        Stasi St. Agustinus 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/benediktus/data_inventaris_benediktus') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/benediktus/data_inventaris_benediktus">
+                        Stasi St. Benediktus 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paulus_inti/data_inventaris_paulus_inti') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/paulus_inti/data_inventaris_paulus_inti">
+                        Stasi St. Paulus Inti
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_fransiskus_asisi') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/fransiskus/data_inventaris_fransiskus">
+                        Stasi St. Fransiskus Asisi 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_empang') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/paulus_empang/data_inventaris_paulus_empang">
+                        Stasi St. Paulus Empang
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_maria_karmel') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/maria/data_inventaris_maria">
+                        Stasi Sta. Maria Bunda Karmel 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_elisabet') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/elisabet/data_inventaris_elisabet">
+                        Stasi Sta. Elisabet
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_petrus') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/petrus/data_inventaris_petrus">
+                        Stasi St. Petrus 
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_stefanus') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/stefanus/data_inventaris_stefanus">
+                        Stasi St. Stefanus
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_mikael') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/mikael/data_inventaris_mikael">
+                        Stasi St. Mikael
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_merambai') ? 'active' : ''; ?>" 
+                        href="index_admin.php?page_admin=data_inventaris/paulus_rasul/data_inventaris_paulus_rasul">
+                        Stasi St. Paulus Rasul
+                        </a>
+
+                    </div>
                 </li>
-                <li class="nav-item">
-                    <a href="index_admin_utama.php?page_admin_utama=data_transaksi_v/data_transaksi_v" 
-                       class="nav-link <?php echo ($halaman == 'data_transaksi_v/data_transaksi_v') ? 'active' : ''; ?>">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?php echo (strpos($halaman, 'peminjaman/data_peminjaman') !== false) ? 'active' : ''; ?>" href="#" id="transaksiDropdown">
                         <i class="fas fa-exchange-alt"></i> Data Transaksi
                     </a>
+                    <div class="dropdown-menu" id="transaksiDropdownMenu">
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/peminjaman/data_peminjaman') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_transaksi/peminjaman/data_peminjaman">
+                           Peminjaman
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_pengembalian') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_transaksi/pengembalian/data_pengembalian">
+                           Pengembalian
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_kerusakan') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_transaksi/kerusakan/data_kerusakan">
+                           Kerusakan
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_perbaikan') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_transaksi/perbaikan/data_perbaikan">
+                           Perbaikan
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_mutasi') ? 'active' : ''; ?>" 
+                           href="index_admin.php?page_admin=data_transaksi/mutasi/data_mutasi">
+                           Mutasi
+                        </a>
+                    </div>
                 </li>
             </ul>
         </nav>
@@ -609,11 +761,11 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                 </div>
                 <div class="user-info">
                     <div class="username"><?php echo $_SESSION['username']; ?></div>
-                    <div class="user-role">Administrator</div>
+                    <div class="user-role">Admin </div>
                 </div>
             </div>
             <div class="user-popup-links">
-                <a href="index_admin_utama.php?page_admin_utama=profil/edit_profil">
+                <a href="index_admin.php?page_admin=profil/edit_profil">
                     <i class="fas fa-edit"></i> Edit Profil
                 </a>
             </div>
@@ -650,11 +802,11 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
         <div class="container">
             <?php
             if ($halaman == "") {
-                include "page_admin_utama/dashboard.php";
-            } else if (file_exists("page_admin_utama/$halaman.php")) {
-                include "page_admin_utama/$halaman.php";
+                include "page_admin/dashboard.php";
+            } else if (file_exists("page_admin/$halaman.php")) {
+                include "page_admin/$halaman.php";
             } else {
-                include "page_admin_utama/404.php";
+                include "page_admin/404.php";
             }
             ?>
         </div>
@@ -667,48 +819,92 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
             const logoutBtn = document.getElementById('logoutBtn');
             const logoutOverlay = document.getElementById('logoutOverlay');
             const cancelLogout = document.getElementById('cancelLogout');
+            
+            // Get all dropdown elements
+            const dropdowns = document.querySelectorAll('.dropdown');
+            const inventarisDropdown = document.getElementById('inventarisDropdown');
+            const inventarisDropdownMenu = document.getElementById('inventarisDropdownMenu');
+            const transaksiDropdown = document.getElementById('transaksiDropdown');
+            const transaksiDropdownMenu = document.getElementById('transaksiDropdownMenu');
 
             // User profile popup toggle
             userProfileBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 userPopup.classList.toggle('show');
+                // Close all dropdowns when user popup opens
+                closeAllDropdowns();
             });
 
-            // Close user popup when clicking outside
+            // Function to close all dropdowns
+            function closeAllDropdowns() {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    if (menu) menu.classList.remove('show');
+                });
+            }
+
+            // Inventaris dropdown toggle
+            inventarisDropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close other dropdowns
+                transaksiDropdown.parentElement.classList.remove('show');
+                transaksiDropdownMenu.classList.remove('show');
+                userPopup.classList.remove('show');
+                
+                // Toggle current dropdown
+                inventarisDropdown.parentElement.classList.toggle('show');
+                inventarisDropdownMenu.classList.toggle('show');
+            });
+
+            // Transaksi dropdown toggle
+            transaksiDropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close other dropdowns
+                inventarisDropdown.parentElement.classList.remove('show');
+                inventarisDropdownMenu.classList.remove('show');
+                userPopup.classList.remove('show');
+                
+                // Toggle current dropdown
+                transaksiDropdown.parentElement.classList.toggle('show');
+                transaksiDropdownMenu.classList.toggle('show');
+            });
+
+            // Close all dropdowns when clicking outside
             document.addEventListener('click', function(e) {
+                // Close user popup
                 if (!userPopup.contains(e.target) && !userProfileBtn.contains(e.target)) {
                     userPopup.classList.remove('show');
                 }
-            });
-
-            // Logout confirmation popup
-            logoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                userPopup.classList.remove('show');
-                logoutOverlay.classList.add('show');
-            });
-
-            // Cancel logout
-            cancelLogout.addEventListener('click', function() {
-                logoutOverlay.classList.remove('show');
-            });
-
-            // Close logout popup when clicking overlay
-            logoutOverlay.addEventListener('click', function(e) {
-                if (e.target === logoutOverlay) {
-                    logoutOverlay.classList.remove('show');
+                
+                // Close all dropdowns if click is outside
+                let clickedInsideDropdown = false;
+                dropdowns.forEach(dropdown => {
+                    if (dropdown.contains(e.target)) {
+                        clickedInsideDropdown = true;
+                    }
+                });
+                if (!clickedInsideDropdown) {
+                    closeAllDropdowns();
                 }
             });
 
-            // Prevent popup close when clicking inside
-            const logoutPopupEl = document.querySelector('.logout-popup');
-            if (logoutPopupEl) {
-                logoutPopupEl.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
+            // Logout overlay toggle
+            logoutBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                logoutOverlay.classList.toggle('show');
+            });
+
+            // Close logout overlay
+            cancelLogout.addEventListener('click', function(e) {
+                e.stopPropagation();
+                logoutOverlay.classList.remove('show');
+            });
         });
     </script>
 </body>
 </html>
-<?php ob_end_flush(); ?>
