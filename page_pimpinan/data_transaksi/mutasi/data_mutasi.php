@@ -117,9 +117,6 @@ if (isset($_POST['ajax'])) {
 
     <div class="toolbar">
         <div class="left-tools">
-            <button class="btn btn-primary" onclick="showAddForm()">
-                <i class="fas fa-plus"></i> Tambah Data Mutasi
-            </button>
             <div class="filter-group">
                 <select class="form-select" id="filterSelect">
                     <option value="Paroki">Paroki</option>

@@ -32,7 +32,7 @@ if (isset($_POST['ajax'])) {
                 <th>Alamat</th>
                 <th>No HP</th>
                 <th>Email</th>
-                <th>Aksi</th>
+                <th>Password</th>
             </tr>
         </thead>
         <tbody>
@@ -56,14 +56,7 @@ if (isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['alamat']); ?></td>
                     <td><?= htmlspecialchars($row['no_hp']); ?></td>
                     <td><?= htmlspecialchars($row['email']); ?></td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="index_pimpinan.php?page_pimpinan=data_akun/edit_akun&id=<?= $row['id_akun']; ?>" class="btn-edit">Edit</a>
-                            <a href="index_pimpinan.php?page_pimpinan=data_akun/hapus_akun&id=<?= $row['id_akun']; ?>" 
-                               class="btn-delete" 
-                               onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</a>
-                        </div>
-                    </td>
+                    <td><?= htmlspecialchars($row['password']); ?></td>
                 </tr>
             <?php } ?>
             <?php if (mysqli_num_rows($result) == 0) { ?>
@@ -95,9 +88,6 @@ if (isset($_POST['ajax'])) {
 <div class="data-container">
     <div class="data-header">
         <div class="header-left">
-            <button class="btn-add" onclick="tambahAkun()">
-                <i class="fas fa-plus"></i> Tambah Data Akun
-            </button>
         </div>
         <div class="header-right">
             <div class="search-container">

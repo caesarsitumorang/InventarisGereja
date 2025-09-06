@@ -123,7 +123,7 @@ if (isset($_POST['ajax'])) {
     <div class="toolbar">
         <div class="left-tools">
             <button class="btn btn-primary" onclick="showAddForm()">
-                <i class="fas fa-plus"></i> Tambah Data Pengembalian
+                <i class="fas fa-plus"></i> Tambah Data Perbaikan
             </button>
             <div class="filter-group">
                 <select class="form-select" id="filterSelect">
@@ -157,11 +157,10 @@ if (isset($_POST['ajax'])) {
     </div>
 </div>
 
-<!-- Modal Pemilihan Lokasi dan Tanggal -->
 <div id="locationModal" class="modal">
     <div class="modal-content location-modal">
         <div class="modal-header">
-            <h3>Download Laporan Pengembalian</h3>
+            <h3>Download Laporan Perbaikan</h3>
             <span class="close" onclick="closeLocationModal()">&times;</span>
         </div>
         <div class="modal-body">

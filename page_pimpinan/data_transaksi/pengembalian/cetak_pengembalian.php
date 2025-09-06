@@ -16,13 +16,14 @@ if (empty($tanggal_awal) || empty($tanggal_akhir)) {
 }
 
 $mpdf = new \Mpdf\Mpdf([
-    'margin_top' => 80,
+    'margin_top' => 60,  // tambah tinggi margin header
     'margin_bottom' => 30,
     'margin_left' => 15,
     'margin_right' => 15,
     'format' => 'A4',
     'orientation' => 'L'
 ]);
+
 
 $mpdf->showImageErrors = true; 
 
@@ -69,19 +70,33 @@ $lokasi_text = !empty($lokasi_filter) ? $lokasi_filter : 'Semua Lokasi';
 $periode_text = date('d/m/Y', strtotime($tanggal_awal)) . ' - ' . date('d/m/Y', strtotime($tanggal_akhir));
 
 $header = '
-<div style="text-align:center; font-family:Arial, sans-serif; margin-bottom:25px;"> 
-  <img src="'.$logoPath.'" width="60" height="60" style="object-fit:contain; margin-bottom:8px;" />
-  <h2 style="margin:0; color:#1a237e; font-size:18px;">SISTEM INVENTARIS GEREJA</h2>
-  <p style="margin:3px 0; font-size:14px; color:#444;">Gereja St Yohanes Pembaptis</p>
-  <h3 style="margin:8px 0; color:#333; font-size:16px;">LAPORAN DATA PENGEMBALIAN</h3>
-  <p style="margin:3px 0; font-size:13px; color:#666; font-weight:bold;">Lokasi: '.$lokasi_text.'</p>
-  <p style="margin:3px 0; font-size:13px; color:#666; font-weight:bold;">Periode: '.$periode_text.'</p>
-  <p style="margin:3px 0; font-size:11px; color:#777; border-bottom:1px solid #ccc; padding-bottom:8px;">
-      Dicetak pada '.date('d F Y, H:i').' WIB oleh '.$nama_admin.'
-  </p>
-</div>
-<div style="height:30px;"></div>
-';
+<table style="width: 100%; border: none; padding: 15px; background: linear-gradient(135deg, #E8F4FD 0%, #D1E7F7 100%); border-bottom: 3px solid #2E86C1;">
+    <tr>
+        <td style="width: 100px; vertical-align: middle; text-align: left; border: none;">
+            <img src="'.$logoPath.'" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Logo Gereja">
+        </td>
+        <td style="vertical-align: middle; text-align: center; border: none; padding-left: 20px;">
+            <div style="color: #1B4F72; font-family: Georgia, serif;">
+                <h2 style="margin: 0 0 5px 0; font-size: 18px; font-weight: bold; color: #154360; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+                    Gereja Katolik Santo Yohanes Pembaptis Perawang
+                </h2>
+                <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #2874A6; font-style: italic;">
+                    Keuskupan Agung Padang
+                </h3>
+                <div style="border-top: 1px solid #5DADE2; padding-top: 8px; margin-top: 8px;">
+                    <p style="margin: 2px 0; font-size: 11px; color: #21618C; font-weight: 500;">
+                        Jl. Raya Minas - Perawang No. Km 3, Tualang, Kab. Siak, Prov. Riau, 28685
+                    </p>
+                    <p style="margin: 2px 0; font-size: 11px; color: #21618C; font-weight: 500;">
+                        ☎ (061) 1234567 | ✉ parokiyohanes@gmail.or.id
+                    </p>
+                </div>
+            </div>
+        </td>
+        <td style="width: 100px; border: none;"></td>
+    </tr>
+</table>';
+
 $mpdf->SetHTMLHeader($header);
 
 $footer = '
@@ -93,17 +108,61 @@ $mpdf->SetHTMLFooter($footer);
 // Konten PDF
 $html = '
 <style>
-body { font-family: Arial, sans-serif; font-size: 10px; line-height: 1.3; }
-h3 { color: #1a237e; margin-top: 20px; font-size: 14px; margin-bottom: 10px; }
-.table { border-collapse: collapse; width: 100%; margin-top: 15px; font-size: 9px; }
-.table th, .table td { padding: 5px 4px; text-align: center; border: 1px solid #ddd; }
-.table th { background: #1a237e; color: white; font-weight: bold; font-size: 9px; text-transform: uppercase; }
-.table tr:nth-child(even) { background: #f8f9fa; }
-.text-left { text-align: left !important; }
-.text-right { text-align: right !important; }
-</style>
+body { 
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+    font-size: 12px;
+    line-height: 1.5;
+    color: #2C3E50;
+}
 
-<h3>Data Pengembalian - '.$lokasi_text.' ('.$periode_text.')</h3>
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    border: 2px solid #2E86C1;
+}
+
+.table th {
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid #2E86C1;
+    font-size: 11px;
+    background: linear-gradient(135deg, #2E86C1 0%, #5DADE2 100%);
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.table td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #AED6F1;
+    font-size: 10px;
+    color: #2C3E50;
+}
+
+.table tr:nth-child(even) { background-color: #EBF5FB; }
+.table tr:nth-child(odd) { background-color: #FFFFFF; }
+.table tr:hover { background-color: #D6EAF8; }
+
+.signature {
+    margin-top: 60px;
+    text-align: right;
+    font-size: 12px;
+    color: #1B4F72;
+    font-family: Georgia, serif;
+}
+
+.signature-name {
+    margin-top: 70px;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 13px;
+    color: #154360;
+}
+</style>
+<h3 style="text-align:center; font-size:16px; margin-top:10px; margin-bottom:10px;">
+    Data Pengembalian - '.$lokasi_text.' ('.$periode_text.')
+</h3>
 <table class="table">
   <tr>
     <th width="4%">No</th>
@@ -151,7 +210,12 @@ if ($total_pengembalian > 0) {
 $html .= '
 </table>
 ';
-
+$html .= '
+<div class="signature">
+    <p><strong>Perawang, '.date('d').' Agustus '.date('Y').'</strong></p>
+    <p>Pastor Paroki,</p>
+    <div class="signature-name">P. Antonius Dwi Raharjo, SCJ.</div>
+</div>';
 ob_clean();
 $mpdf->WriteHTML($html);
 $filename = "Laporan_Pengembalian_" . str_replace(' ', '_', $lokasi_text) . "_" . 

@@ -46,160 +46,210 @@ $summary = mysqli_fetch_assoc(mysqli_query($koneksi, "
 
 // Path logo
 $logoPath = $_SERVER['DOCUMENT_ROOT'] . "/inventaris-gereja/img/logo.jpg";
-
-// Header minimalis
+// Header yang diperbaiki dengan layout sejajar
 $header = '
-<div style="text-align:center; font-family:Arial, sans-serif; margin-bottom:10px;">
-  <img src="'.$logoPath.'" width="60" height="60" style="object-fit:contain; margin-bottom:5px;" />
-  <h2 style="margin:0; color:#1a237e;">SISTEM INVENTARIS GEREJA</h2>
-  <p style="margin:2px 0; font-size:13px; color:#444;">Gereja St Yohanes Pembaptis</p>
-  <h3 style="margin:5px 0; color:#333;">LAPORAN DATA INVENTARIS</h3>
-  <p style="margin:3px 0; font-size:11px; color:#777; border-bottom:1px solid #ccc; padding-bottom:5px;">
-      Dicetak pada '.date('d F Y, H:i').' WIB oleh '.$nama_admin.'
-  </p>
-</div>';
+<table style="width: 100%; border: none; padding: 15px; background: linear-gradient(135deg, #E8F4FD 0%, #D1E7F7 100%); border-bottom: 3px solid #2E86C1;">
+    <tr>
+        <td style="width: 100px; vertical-align: middle; text-align: left; border: none;">
+            <img src="'.$logoPath.'" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Logo Gereja">
+        </td>
+        <td style="vertical-align: middle; text-align: center; border: none; padding-left: 20px;">
+            <div style="color: #1B4F72; font-family: Georgia, serif;">
+                <h2 style="margin: 0 0 5px 0; font-size: 18px; font-weight: bold; color: #154360; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+                    Gereja Katolik Santo Yohanes Pembaptis Perawang
+                </h2>
+                <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #2874A6; font-style: italic;">
+                    Keuskupan Agung Padang
+                </h3>
+                <div style="border-top: 1px solid #5DADE2; padding-top: 8px; margin-top: 8px;">
+                    <p style="margin: 2px 0; font-size: 11px; color: #21618C; font-weight: 500;">
+                        Jl. Raya Minas - Perawang No. Km 3, Tualang, Kab. Siak, Prov. Riau, 28685
+                    </p>
+                    <p style="margin: 2px 0; font-size: 11px; color: #21618C; font-weight: 500;">
+                        ☎ (061) 1234567 | ✉ parokiyohanes@gmail.or.id
+                    </p>
+                </div>
+            </div>
+        </td>
+        <td style="width: 100px; border: none;"></td>
+    </tr>
+</table>';
+
 $mpdf->SetHTMLHeader($header);
 
-// Footer sederhana
+// Footer dengan warna yang serasi
 $footer = '
-<div style="padding-top:5px; font-size:10px; text-align:center; color:#555; font-family:Arial, sans-serif;">
-  Halaman {PAGENO} dari {nbpg}
+<div style="padding: 10px; font-size: 10px; text-align: center; color: #154360; font-family: Arial, sans-serif; background-color: #EBF5FB; border-top: 2px solid #5DADE2;">
+    <strong>Halaman {PAGENO} dari {nbpg}</strong> | Dicetak pada: '.date('d-m-Y H:i:s').'
 </div>';
 $mpdf->SetHTMLFooter($footer);
 
-// Konten
+// Konten dengan palet warna yang diperbaiki
 $html = '
 <style>
 body { 
-    font-family: Arial, sans-serif; 
-    font-size: 11px;
-    line-height: 1.4;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+    font-size: 12px;
+    line-height: 1.5;
+    color: #2C3E50;
 }
-h3 { 
-    color: #1a237e; 
-    margin-top: 25px;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-.summary-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-.summary-box {
-    flex: 1;
-    min-width: 150px;
-    padding: 10px 12px;
-    background: #f9f9f9;
-    border-radius: 6px;
-}
-.summary-box .title {
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 3px;
-}
-.summary-box .value {
-    font-size: 16px;
+
+.title-laporan {
+    text-align: center;
     font-weight: bold;
-    color: #1a237e;
+    font-size: 16px;
+    margin: 25px 0;
+    padding: 12px;
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #2E86C1 0%, #5DADE2 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
 .table {
     border-collapse: collapse;
     width: 100%;
-    margin-top: 10px;
-    font-size: 10px;
+    margin-top: 20px;
+    border: 2px solid #2E86C1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-.table th, .table td {
-    padding: 6px;
+
+.table th {
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid #2E86C1;
+    font-size: 11px;
+    background: linear-gradient(135deg, #2E86C1 0%, #5DADE2 100%);
+    color: #FFFFFF;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #AED6F1;
+    font-size: 10px;
+    color: #2C3E50;
+}
+
+.table tr:nth-child(even) {
+    background-color: #EBF5FB;
+}
+
+.table tr:nth-child(odd) {
+    background-color: #FFFFFF;
+}
+
+.table tr:hover {
+    background-color: #D6EAF8;
+}
+
+.signature {
+    margin-top: 60px;
+    text-align: right;
+    font-size: 12px;
+    color: #1B4F72;
+    font-family: Georgia, serif;
+}
+
+.signature p {
+    margin: 5px 0;
+    color: #2C3E50;
+}
+
+.signature-name {
+    margin-top: 70px;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 13px;
+    color: #154360;
+}
+
+.info-box {
+    background: linear-gradient(135deg, #EBF5FB 0%, #D6EAF8 100%);
+    padding: 15px;
+    border-left: 4px solid #2E86C1;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.info-text {
+    font-size: 11px;
+    color: #1B4F72;
+    font-style: italic;
     text-align: center;
 }
-.table th {
-    background: #1a237e;
-    color: white;
-    font-weight: normal;
-    font-size: 10px;
-    text-transform: uppercase;
-}
-.table tr:nth-child(even) { 
-    background: #f8f9fa; 
-}
-.status-baik { color: #4caf50; font-weight: bold; }
-.status-rusak-ringan { color: #ff9800; font-weight: bold; }
-.status-rusak-berat { color: #f44336; font-weight: bold; }
-.price { text-align: right !important; color: #1a237e; font-weight: bold; }
 </style>
 
-<div class="summary-container">
-    <div class="summary-box">
-        <div class="title">Total Barang</div>
-        <div class="value">'.$summary['total_items'].'</div>
-    </div>
-    <div class="summary-box">
-        <div class="title">Kondisi Baik</div>
-        <div class="value" style="color: #4caf50;">'.$summary['kondisi_baik'].'</div>
-    </div>
-    <div class="summary-box">
-        <div class="title">Rusak Ringan</div>
-        <div class="value" style="color: #ff9800;">'.$summary['rusak_ringan'].'</div>
-    </div>
-    <div class="summary-box">
-        <div class="title">Rusak Berat</div>
-        <div class="value" style="color: #f44336;">'.$summary['rusak_berat'].'</div>
-    </div>
-    <div class="summary-box">
-        <div class="title">Total Nilai Inventaris</div>
-        <div class="value">Rp '.number_format($summary['total_nilai'],0,",",".").'</div>
-    </div>
-</div>
+<h3 class="title-laporan">Data Inventaris Gereja</h3>
 
-<h3>Data Inventaris</h3>
 <table class="table">
-  <tr>
-    <th>No</th>
-    <th>Kode Barang</th>
-    <th>Nama Barang</th>
-    <th>Kategori</th>
-    <th>Lokasi Simpan</th>
-    <th>Jumlah</th>
-    <th>Jumlah Total</th>
-    <th>Satuan</th>
-    <th>Tgl Pengadaan</th>
-    <th>Kondisi</th>
-    <th>Sumber</th>
-    <th>Harga</th>
-    <th>Keterangan</th>
-  </tr>';
+  <thead>
+    <tr>
+      <th style="width: 4%;">No</th>
+      <th style="width: 8%;">Kode</th>
+      <th style="width: 12%;">Nama Barang</th>
+      <th style="width: 8%;">Kategori</th>
+      <th style="width: 10%;">Lokasi</th>
+      <th style="width: 5%;">Jml</th>
+      <th style="width: 5%;">Total</th>
+      <th style="width: 6%;">Satuan</th>
+      <th style="width: 8%;">Tgl Pengadaan</th>
+      <th style="width: 8%;">Kondisi</th>
+      <th style="width: 8%;">Sumber</th>
+      <th style="width: 10%;">Harga</th>
+      <th style="width: 8%;">Keterangan</th>
+    </tr>
+  </thead>
+  <tbody>';
 
 $no = 1;
 while ($row = mysqli_fetch_assoc($result)) {
+    // Warna kondisi
+    $kondisiColor = '';
+    switch($row['kondisi']) {
+        case 'Baik': $kondisiColor = 'color: #27AE60; font-weight: bold;'; break;
+        case 'Rusak Ringan': $kondisiColor = 'color: #F39C12; font-weight: bold;'; break;
+        case 'Rusak Berat': $kondisiColor = 'color: #E74C3C; font-weight: bold;'; break;
+        default: $kondisiColor = 'color: #2C3E50;';
+    }
+    
     $html .= '
     <tr>
         <td>'.$no++.'</td>
-        <td>'.htmlspecialchars($row['kode_barang']).'</td>
-        <td>'.htmlspecialchars($row['nama_barang']).'</td>
+        <td style="font-weight: 600;">'.htmlspecialchars($row['kode_barang']).'</td>
+        <td style="text-align: left; font-weight: 500;">'.htmlspecialchars($row['nama_barang']).'</td>
         <td>'.htmlspecialchars($row['kategori']).'</td>
-        <td>'.htmlspecialchars($row['lokasi_simpan']).'</td>
-        <td>'.htmlspecialchars($row['jumlah']).'</td>
-        <td>'.htmlspecialchars($row['jumlah_total']).'</td>
+        <td style="font-size: 9px;">'.htmlspecialchars($row['lokasi_simpan']).'</td>
+        <td><strong>'.htmlspecialchars($row['jumlah']).'</strong></td>
+        <td><strong>'.htmlspecialchars($row['jumlah_total']).'</strong></td>
         <td>'.htmlspecialchars($row['satuan']).'</td>
-        <td>'.htmlspecialchars($row['tgl_pengadaan']).'</td>
-        <td>'.htmlspecialchars($row['kondisi']).'</td>
-        <td>'.htmlspecialchars($row['sumber']).'</td>
-        <td>Rp '.number_format($row['harga'], 0, ",", ".").'</td>
-        <td>'.htmlspecialchars($row['keterangan']).'</td>
+        <td>'.date('d/m/Y', strtotime($row['tgl_pengadaan'])).'</td>
+        <td style="'.$kondisiColor.'">'.htmlspecialchars($row['kondisi']).'</td>
+        <td style="font-size: 9px;">'.htmlspecialchars($row['sumber']).'</td>
+        <td style="color: #27AE60; font-weight: bold;">Rp '.number_format($row['harga'], 0, ",", ".").'</td>
+        <td style="font-size: 9px; text-align: left;">'.htmlspecialchars($row['keterangan']).'</td>
     </tr>';
 }
 
 $html .= '
+  </tbody>
 </table>
 
-<div style="margin-top:50px; text-align:right; font-size:12px;">
-  <p>Medan, '.date('d F Y').'</p>
-  <p style="margin-top:60px; font-weight:bold;">'.$nama_admin.'</p>
+<div class="signature">
+    <p><strong>Perawang, '.date('d').' Agustus '.date('Y').'</strong></p>
+    <p>Pastor Paroki,</p>
+    <div class="signature-name">P. Antonius Dwi Raharjo, SCJ.</div>
 </div>
 ';
 
 ob_clean();
 $mpdf->WriteHTML($html);
 $mpdf->Output("Laporan_Inventaris_" . date('Y-m-d') . ".pdf", "I");
+?>

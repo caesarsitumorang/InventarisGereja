@@ -74,10 +74,7 @@ if(isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['keterangan']); ?></td>
                     <td>
                         <div class="action-buttons">
-                            <a href="index_pimpinan.php?page_pimpinan=data_inventaris/benediktus/edit_inventaris_benediktus&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>
-                            <a href="index_pimpinan.php?page_pimpinan=data_inventaris/benediktus/hapus_inventaris_benediktus&id=<?= $row['id']; ?>" 
-                            class="btn-delete" 
-                            onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</a>
+                            
                             <button type="button" 
                                     class="btn-detail" 
                                     onclick='showDetail(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>)'>
@@ -141,9 +138,6 @@ if(isset($_POST['ajax'])) {
 <div class="data-container">
     <div class="data-header">
         <div class="header-actions">
-            <button class="btn-add" onclick="showAddForm()">
-                <i class="fas fa-plus"></i> Tambah Data
-            </button>
             <button class="btn-download" onclick="downloadPDF()">
                 <i class="fas fa-download"></i> Download PDF
             </button>
