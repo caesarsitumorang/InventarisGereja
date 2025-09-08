@@ -1,7 +1,6 @@
 <?php
 require_once("config/koneksi.php");
 
-// Fungsi generate nomor pengembalian otomatis
 function generateNoPengembalian($koneksi) {
     $prefix = "PG";
     $query = "SELECT no_pengembalian FROM pengembalian 
@@ -18,34 +17,40 @@ function generateNoPengembalian($koneksi) {
     return $prefix . $newNumber;
 }
 
-// Ambil data peminjaman untuk select
+// Ambil data peminjaman yang BELUM dikembalikan
 $peminjaman = mysqli_query($koneksi, "SELECT no_peminjaman, nama_peminjam, kode_barang, nama_barang, lokasi_simpan, jumlah_pinjam, satuan 
-                                      FROM peminjaman ORDER BY no_peminjaman ASC");
+                                      FROM peminjaman 
+                                      WHERE status != 'Sudah Dikembalikan'
+                                      ORDER BY no_peminjaman ASC");
 
 if (isset($_POST['submit'])) {
     $no_pengembalian = generateNoPengembalian($koneksi);
     $tanggal_kembali = $_POST['tanggal_kembali'];
-    $no_peminjaman = $_POST['no_peminjaman'];
-    $lokasi_simpan = $_POST['lokasi_simpan'];
-    $kode_barang = $_POST['kode_barang'];
-    $nama_barang = $_POST['nama_barang'];
-    $jumlah = (int)$_POST['jumlah'];
-    $satuan = $_POST['satuan'];
-    $pengembali = $_POST['pengembali'];
-    $kondisi_barang = $_POST['kondisi_barang'];
-    $keterangan = $_POST['keterangan'];
+    $no_peminjaman   = $_POST['no_peminjaman'];
+    $lokasi_simpan   = $_POST['lokasi_simpan'];
+    $kode_barang     = $_POST['kode_barang'];
+    $nama_barang     = $_POST['nama_barang'];
+    $jumlah          = (int)$_POST['jumlah'];
+    $satuan          = $_POST['satuan'];
+    $pengembali      = $_POST['pengembali'];
+    $kondisi_barang  = $_POST['kondisi_barang'];
+    $keterangan      = $_POST['keterangan'];
+    $namaAkun        = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
     $query = "INSERT INTO pengembalian 
-              (no_pengembalian, tanggal_kembali, no_peminjaman, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, pengembali, kondisi_barang, keterangan) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (no_pengembalian, tanggal_kembali, no_peminjaman, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, pengembali, kondisi_barang, keterangan, nama_akun) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "ssssssissss",
+    mysqli_stmt_bind_param($stmt, "ssssssisssss",
         $no_pengembalian, $tanggal_kembali, $no_peminjaman, $lokasi_simpan,
-        $kode_barang, $nama_barang, $jumlah, $satuan, $pengembali, $kondisi_barang, $keterangan
+        $kode_barang, $nama_barang, $jumlah, $satuan, $pengembali, $kondisi_barang, $keterangan, $namaAkun
     );
 
     if (mysqli_stmt_execute($stmt)) {
+        // update status peminjaman jadi sudah dikembalikan
+        $update = mysqli_query($koneksi, "UPDATE peminjaman SET status='Sudah Dikembalikan' WHERE no_peminjaman='$no_peminjaman'");
+
         echo "<script>
                 alert('Data pengembalian berhasil ditambahkan');
                 window.location.href='index_admin_utama.php?page_admin_utama=data_transaksi/pengembalian/data_pengembalian';
@@ -55,6 +60,7 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
 
 <div class="form-container">
     <div class="form-card">
@@ -108,7 +114,6 @@ if (isset($_POST['submit'])) {
                     <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group half">
                     <label>Lokasi Simpan</label>

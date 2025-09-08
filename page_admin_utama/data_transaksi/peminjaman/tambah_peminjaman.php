@@ -1,7 +1,10 @@
 <?php
 require_once("config/koneksi.php");
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Fungsi generate nomor peminjaman otomatis
+// === Fungsi Generate No Peminjaman ===
 function generateNoPeminjaman($koneksi) {
     $prefix = "PJ";
     $query = "SELECT no_peminjaman FROM peminjaman 
@@ -18,7 +21,17 @@ function generateNoPeminjaman($koneksi) {
     return $prefix . $newNumber; 
 }
 
-$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan FROM inventaris ORDER BY kode_barang ASC");
+// Ambil semua data inventaris
+$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan FROM inventaris ORDER BY lokasi_simpan, nama_barang ASC");
+
+// Simpan ke array untuk dipakai di JS
+$data_inventaris = [];
+while($row = mysqli_fetch_assoc($inventaris)) {
+    $data_inventaris[] = $row;
+}
+
+// Ambil lokasi unik
+$lokasi_unik = array_unique(array_column($data_inventaris, 'lokasi_simpan'));
 
 if(isset($_POST['submit'])) {
     $no_peminjaman = generateNoPeminjaman($koneksi);
@@ -28,24 +41,31 @@ if(isset($_POST['submit'])) {
     $nama_barang = $_POST['nama_barang'];
     $jumlah_pinjam = (int)$_POST['jumlah_pinjam'];
     $satuan = $_POST['satuan'];
-    $lokasi_pinjam = $_POST['lokasi_pinjam'];
+    $lokasi_pinjam = $_POST['lokasi_pinjam']; 
     $nama_peminjam = $_POST['nama_peminjam'];
     $keterangan = $_POST['keterangan'];
-    $status = $_POST['status'];
+    $status = "Belum Dikembalikan"; // otomatis
+    $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
+    // === Insert ke tabel peminjaman ===
     $query = "INSERT INTO peminjaman 
               (no_peminjaman, tanggal_pinjam, lokasi_simpan, kode_barang, nama_barang, 
-               jumlah_pinjam, satuan, lokasi_pinjam, nama_peminjam, keterangan, status) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+               jumlah_pinjam, satuan, lokasi_pinjam, nama_peminjam, keterangan, status, nama_akun) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
               
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "sssssisssss", 
-    $no_peminjaman, $tanggal_pinjam, $lokasi_simpan, $kode_barang, $nama_barang, 
-    $jumlah_pinjam, $satuan, $lokasi_pinjam, $nama_peminjam, $keterangan, $status
-);
+    mysqli_stmt_bind_param($stmt, "sssssissssss", 
+        $no_peminjaman, $tanggal_pinjam, $lokasi_simpan, $kode_barang, $nama_barang, 
+        $jumlah_pinjam, $satuan, $lokasi_pinjam, $nama_peminjam, $keterangan, $status, $namaAkun
+    );
 
-    
     if(mysqli_stmt_execute($stmt)) {
+        // === Update stok inventaris ===
+        $update = "UPDATE inventaris SET jumlah = jumlah - ? WHERE kode_barang = ?";
+        $stmt2 = mysqli_prepare($koneksi, $update);
+        mysqli_stmt_bind_param($stmt2, "is", $jumlah_pinjam, $kode_barang);
+        mysqli_stmt_execute($stmt2);
+
         echo "<script>
                 alert('Data transaksi berhasil ditambahkan');
                 window.location.href='index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman';
@@ -75,78 +95,56 @@ if(isset($_POST['submit'])) {
                 </div>
             </div>
 
+            <!-- Pilih Lokasi Simpan -->
             <div class="form-row">
                 <div class="form-group half">
-                    <label for="nama_barang">Nama Barang</label>
-                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
-                        <option value="">Pilih Nama Barang</option>
-                        <?php 
-                        // Reset pointer inventaris
-                        mysqli_data_seek($inventaris, 0);
-                        while($row = mysqli_fetch_assoc($inventaris)) { ?>
-                            <option value="<?= htmlspecialchars($row['nama_barang']); ?>" 
-                                    data-kode="<?= $row['kode_barang']; ?>" 
-                                    data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>">
-                                <?= htmlspecialchars($row['nama_barang']); ?>
-                            </option>
+                    <label for="lokasi_simpan">Lokasi Simpan</label>
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control" onchange="filterBarang()">
+                        <option value="">Pilih Lokasi</option>
+                        <?php foreach($lokasi_unik as $lok) { ?>
+                            <option value="<?= htmlspecialchars($lok); ?>"><?= htmlspecialchars($lok); ?></option>
                         <?php } ?>
                     </select>
                 </div>
                 <div class="form-group half">
+                    <label for="nama_barang">Nama Barang</label>
+                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
+                        <option value="">Pilih Nama Barang</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Detail Barang -->
+            <div class="form-row">
+                <div class="form-group half">
                     <label for="kode_barang">Kode Barang</label>
                     <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
                 </div>
+                <div class="form-group half">
+                    <label for="jumlah_tersedia">Jumlah Tersedia</label>
+                    <input type="text" id="jumlah_tersedia" readonly class="form-control">
+                </div>
             </div>
 
             <div class="form-row">
-                <div class="form-group half">
-                    <label for="lokasi_simpan">Lokasi Simpan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" readonly required class="form-control">
-                </div>
                 <div class="form-group half">
                     <label for="jumlah_pinjam">Jumlah Pinjam</label>
-                    <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control">
+                    <input type="number" id="jumlah_pinjam" name="jumlah_pinjam" min="1" required class="form-control" oninput="validasiJumlah()">
                 </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group half">
                     <label for="satuan">Satuan</label>
-                    <input type="text" id="satuan" name="satuan" required class="form-control">
-                </div>
-                <div class="form-group half">
-                    <label for="lokasi_pinjam">Lokasi Penggunaan</label>
-                    <select id="lokasi_pinjam" name="lokasi_pinjam" required class="form-control">
-                        <option value="Paroki">Paroki</option>
-                        <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
-                        <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
-                        <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
-                        <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
-                        <option value="Stasi St. Paulus (Inti 4)">Stasi St. Paulus (Inti 4)</option>
-                        <option value="Stasi St. Fransiskus Asisi (Inti 7)">Stasi St. Fransiskus Asisi (Inti 7)</option>
-                        <option value="Stasi St. Paulus (Empang Pandan)">Stasi St. Paulus (Empang Pandan)</option>
-                        <option value="Stasi Sta. Maria Bunda Karmel (Teluk Merbau)">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
-                        <option value="Stasi Sta. Elisabet (Sialang Sakti)">Stasi Sta. Elisabet (Sialang Sakti)</option>
-                        <option value="Stasi St. Petrus (Pangkalan Makmur)">Stasi St. Petrus (Pangkalan Makmur)</option>
-                        <option value="Stasi St. Stefanus (Zamrud)">Stasi St. Stefanus (Zamrud)</option>
-                        <option value="Stasi St. Mikael (Siak Raya)">Stasi St. Mikael (Siak Raya)</option>
-                        <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
-                    </select>
+                    <input type="text" id="satuan" name="satuan" readonly required class="form-control">
                 </div>
             </div>
 
             <div class="form-row">
+                <div class="form-group half">
+                    <label for="lokasi_pinjam">Lokasi Penggunaan</label>
+                    <input type="text" id="lokasi_pinjam" name="lokasi_pinjam" required class="form-control">
+                </div>
                 <div class="form-group half">
                     <label for="nama_peminjam">Nama Peminjam</label>
                     <input type="text" id="nama_peminjam" name="nama_peminjam" required class="form-control">
-                </div>
-                <div class="form-group half">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" required class="form-control">
-                        <option value="">Pilih Status</option>
-                        <option value="Dipinjam">Dipinjam</option>
-                        <option value="Dikembalikan">Dikembalikan</option>
-                    </select>
                 </div>
             </div>
 
@@ -164,16 +162,59 @@ if(isset($_POST['submit'])) {
 </div>
 
 <script>
-function updateBarang() {
-    var select = document.getElementById('nama_barang');
-    var selected = select.options[select.selectedIndex];
-    var kode = selected.getAttribute('data-kode') || '';
-    var lokasi = selected.getAttribute('data-lokasi') || '';
+// Simpan semua inventaris di JS
+var inventaris = <?= json_encode($data_inventaris); ?>;
 
-    document.getElementById('kode_barang').value = kode;
-    document.getElementById('lokasi_simpan').value = lokasi;
+// Filter barang sesuai lokasi
+function filterBarang() {
+    var lokasi = document.getElementById("lokasi_simpan").value;
+    var barangSelect = document.getElementById("nama_barang");
+    barangSelect.innerHTML = "<option value=''>Pilih Nama Barang</option>";
+
+    inventaris.forEach(function(item) {
+        if (item.lokasi_simpan === lokasi) {
+            var option = document.createElement("option");
+            option.value = item.nama_barang;
+            option.text = item.nama_barang;
+            option.setAttribute("data-kode", item.kode_barang);
+            option.setAttribute("data-jumlah", item.jumlah);
+            option.setAttribute("data-satuan", item.satuan);
+            barangSelect.appendChild(option);
+        }
+    });
+
+    // reset detail
+    document.getElementById("kode_barang").value = "";
+    document.getElementById("jumlah_tersedia").value = "";
+    document.getElementById("satuan").value = "";
+    document.getElementById("jumlah_pinjam").value = "";
+}
+
+// Update detail barang
+function updateBarang() {
+    var select = document.getElementById("nama_barang");
+    var kode = select.options[select.selectedIndex].getAttribute("data-kode");
+    var jumlah = select.options[select.selectedIndex].getAttribute("data-jumlah");
+    var satuan = select.options[select.selectedIndex].getAttribute("data-satuan");
+
+    document.getElementById("kode_barang").value = kode;
+    document.getElementById("jumlah_tersedia").value = jumlah;
+    document.getElementById("satuan").value = satuan;
+}
+
+// Validasi jumlah pinjam
+function validasiJumlah() {
+    var jumlahPinjam = parseInt(document.getElementById("jumlah_pinjam").value) || 0;
+    var jumlahTersedia = parseInt(document.getElementById("jumlah_tersedia").value) || 0;
+
+    if (jumlahPinjam > jumlahTersedia) {
+        alert("Jumlah pinjam tidak boleh lebih besar dari jumlah tersedia!");
+        document.getElementById("jumlah_pinjam").value = jumlahTersedia;
+    }
 }
 </script>
+
+
 
 <style>
     .form-group.third {

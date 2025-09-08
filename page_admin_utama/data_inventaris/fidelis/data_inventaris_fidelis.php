@@ -99,31 +99,36 @@ if(isset($_POST['ajax'])) {
         </tbody>
     </table>
 
+  
+    <?php if ($total_pages > 0) { ?>
     <div class="pagination">
         <a href="javascript:void(0);" onclick="loadData(1)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>First</a>
-        <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&laquo;</a>
-        <?php for($i = max(1, $page - 2); $i <= min($page + 2, $total_pages); $i++) { ?>
+        <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&lt;&lt;</a>
+        
+        <?php
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
+        for ($i = $start_page; $i <= $end_page; $i++) { ?>
             <a href="javascript:void(0);" onclick="loadData(<?= $i; ?>)" <?= ($i == $page ? 'class="active"' : '') ?>><?= $i; ?></a>
         <?php } ?>
-        <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&raquo;</a>
+        
+        <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&gt;&gt;</a>
         <a href="javascript:void(0);" onclick="loadData(<?= $total_pages; ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>Last</a>
     </div>
-    <div class="category-list">
+    <?php } ?>
+   <div class="category-list">
     <?php 
-    require_once("config/koneksi.php");
+    $kategori_data = [
+        "Bangunan" => 100,
+        "Liturgi" => 200,
+        "Pakaian Misa" => 300,
+        "Pakaian Misdinar" => 400,
+        "Buku Misa" => 500,
+        "Mebulair" => 600,
+        "Alat Elektronik" => 700,
+        "Alat Rumah Tangga" => 800
+    ];
 
-    // Ambil semua kategori dari tabel inventaris dan jumlahnya
-    $query = "SELECT kategori, SUM(jumlah) AS total_jumlah 
-              FROM inventaris 
-              GROUP BY kategori";
-    $result = mysqli_query($koneksi, $query);
-
-    $kategori_data = [];
-    while($row = mysqli_fetch_assoc($result)) {
-        $kategori_data[$row['kategori']] = $row['total_jumlah'];
-    }
-
-    // Tampilkan kategori
     foreach($kategori_data as $kategori => $total) { 
     ?>
         <div class="category-item">

@@ -56,7 +56,7 @@ if (isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['alamat']); ?></td>
                     <td><?= htmlspecialchars($row['no_hp']); ?></td>
                     <td><?= htmlspecialchars($row['email']); ?></td>
-                    <td><?= htmlspecialchars($row['password']); ?></td>
+                    <td>********</td>
                 </tr>
             <?php } ?>
             <?php if (mysqli_num_rows($result) == 0) { ?>

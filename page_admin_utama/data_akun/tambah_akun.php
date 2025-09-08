@@ -61,9 +61,9 @@ if(isset($_POST['submit'])) {
                 <label for="peran">Peran</label>
                 <select id="peran" name="peran" required class="form-control">
                     <option value="">Pilih Peran</option>
-                    <option value="Admin Utama">Admin Utama</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Pimpinan">Pimpinan</option>
+                    <option value="admin_utama">Admin Utama</option>
+                    <option value="admin">Admin</option>
+                    <option value="pimpinan">Pimpinan</option>
                 </select>
             </div>
 

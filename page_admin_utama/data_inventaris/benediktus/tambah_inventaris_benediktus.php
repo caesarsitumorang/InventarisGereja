@@ -1,48 +1,75 @@
 <?php
 require_once("config/koneksi.php");
 
-function generateKodeBarang($koneksi) {
-    $prefix = "KB";
+// === Fungsi Generate Kode Barang Berdasarkan Kategori & Lokasi ===
+function generateKodeBarang($koneksi, $kategori, $lokasi) {
+    // Mapping kategori -> base kode
+    $kategoriPrefix = [
+        "Bangunan" => 10001,
+        "Liturgi" => 20001,
+        "Pakaian Misa" => 30001,
+        "Pakaian Misdinar" => 40001,
+        "Buku Misa" => 50001,
+        "Mebulair" => 60001,
+        "Alat Elektronik" => 70001,
+        "Alat Rumah Tangga" => 80001,
+    ];
 
-    $query = "SELECT kode_barang FROM inventaris 
-              WHERE kode_barang LIKE '$prefix%' 
-              ORDER BY kode_barang DESC LIMIT 1";
-    $result = mysqli_query($koneksi, $query);
-
-    if ($row = mysqli_fetch_assoc($result)) {
-        $lastNumber = (int)substr($row['kode_barang'], 2); 
-        $newNumber = str_pad($lastNumber + 1, 4, "0", STR_PAD_LEFT);
-    } else {
-        $newNumber = "0001";
+    if (!isset($kategoriPrefix[$kategori])) {
+        return null; // kategori tidak ditemukan
     }
 
-    return $prefix . $newNumber; 
+    $baseKode = $kategoriPrefix[$kategori];
+
+    // cek kode terakhir di lokasi & kategori yg sama
+    $query = "SELECT kode_barang 
+              FROM inventaris 
+              WHERE kategori = ? AND lokasi_simpan = ? 
+              ORDER BY kode_barang DESC LIMIT 1";
+    $stmt = mysqli_prepare($koneksi, $query);
+    mysqli_stmt_bind_param($stmt, "ss", $kategori, $lokasi);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        return (string)($row['kode_barang'] + 1); // lanjut nomor terakhir
+    } else {
+        return (string)$baseKode; 
+    }
 }
 
+// === Proses Simpan ===
 if(isset($_POST['submit'])) {
-    $kode_barang = mysqli_real_escape_string($koneksi, $_POST['kode_barang']); 
-    $nama_barang = substr(mysqli_real_escape_string($koneksi, $_POST['nama_barang']), 0, 50);
-    $kategori = mysqli_real_escape_string($koneksi, $_POST['kategori']);
+    $nama_barang   = substr(mysqli_real_escape_string($koneksi, $_POST['nama_barang']), 0, 50);
+    $kategori      = mysqli_real_escape_string($koneksi, $_POST['kategori']);
     $lokasi_simpan = substr(mysqli_real_escape_string($koneksi, $_POST['lokasi_simpan']), 0, 100);
-    $jumlah = (int)$_POST['jumlah'];
-    $jumlah_total = (int)$_POST['jumlah_total'];
-    $satuan = substr(mysqli_real_escape_string($koneksi, $_POST['satuan']), 0, 10);
+    $jumlah_total  = (int)$_POST['jumlah_total'];
+    $jumlah        = $jumlah_total; // otomatis sama dengan jumlah_total
+    $satuan        = substr(mysqli_real_escape_string($koneksi, $_POST['satuan']), 0, 10);
     $tgl_pengadaan = mysqli_real_escape_string($koneksi, $_POST['tgl_pengadaan']);
-    $kondisi = mysqli_real_escape_string($koneksi, $_POST['kondisi']);
-    $sumber = mysqli_real_escape_string($koneksi, $_POST['sumber']);
-    $harga = substr(str_replace([',', '.'], '', $_POST['harga']), 0, 30);
-    $keterangan = substr(mysqli_real_escape_string($koneksi, $_POST['keterangan']), 0, 100);
+    $kondisi       = mysqli_real_escape_string($koneksi, $_POST['kondisi']);
+    $sumber        = mysqli_real_escape_string($koneksi, $_POST['sumber']);
+    $harga         = substr(str_replace([',', '.'], '', $_POST['harga']), 0, 30);
+    $keterangan    = substr(mysqli_real_escape_string($koneksi, $_POST['keterangan']), 0, 100);
+
+    // ambil username dari session
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
+
+    // generate kode barang berdasarkan kategori & lokasi
+    $kode_barang = generateKodeBarang($koneksi, $kategori, $lokasi_simpan);
 
     $query = "INSERT INTO inventaris 
-              (kode_barang, nama_barang, kategori, lokasi_simpan, jumlah, jumlah_total, satuan, tgl_pengadaan, kondisi, sumber, harga, keterangan) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (kode_barang, nama_barang, kategori, lokasi_simpan, jumlah, jumlah_total, satuan, tgl_pengadaan, kondisi, sumber, harga, keterangan, nama_akun) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
               
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "ssssiissssss", 
+    mysqli_stmt_bind_param($stmt, "ssssiisssssss", 
         $kode_barang, $nama_barang, $kategori, $lokasi_simpan, $jumlah, $jumlah_total,
-        $satuan, $tgl_pengadaan, $kondisi, $sumber, $harga, $keterangan
+        $satuan, $tgl_pengadaan, $kondisi, $sumber, $harga, $keterangan, $namaAkun
     );
-    
     if(mysqli_stmt_execute($stmt)) {
         echo "<script>
                 alert('Data berhasil ditambahkan');
@@ -63,36 +90,9 @@ if(isset($_POST['submit'])) {
         <form method="POST" class="add-form ">
             <div class="form-row">
                 <div class="form-group half">
-                    <label for="kode_barang">Kode Barang</label>
-                    <input type="text" id="kode_barang" name="kode_barang" class="form-control"
-                           value="<?= generateKodeBarang($koneksi); ?>" readonly>
-                </div>
-
-                <div class="form-group half">
-                    <label for="nama_barang">Nama Barang</label>
-                    <input type="text" id="nama_barang" name="nama_barang" maxlength="50" required class="form-control">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group half">
-                    <label for="kategori">Kategori</label>
-                    <select id="kategori" name="kategori" required class="form-control">
-                        <option value="">Pilih Kategori</option>
-                        <option value="Bangunan">Bangunan</option>
-                        <option value="Liturgi">Liturgi</option>
-                        <option value="Pakaian Misa">Pakaian Misa</option>
-                        <option value="Pakaian Misdinar">Pakaian Misdinar</option>
-                        <option value="Buku Misa">Buku Misa</option>
-                        <option value="Mebulair">Mebulair</option>
-                        <option value="Alat Elektronik">Alat Elektronik</option>
-                        <option value="Alat Rumah Tangga">Alat Rumah Tangga</option>
-                    </select>
-                </div>
-
-                <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Penyimpanan</label>
                     <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
+                        <option value="">Pilih Lokasi</option>
                         <option value="Paroki">Paroki</option>
                         <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
                         <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
@@ -109,14 +109,36 @@ if(isset($_POST['submit'])) {
                         <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
                     </select>
                 </div>
+
+                <div class="form-group half">
+                    <label for="kategori">Kategori</label>
+                    <select id="kategori" name="kategori" required class="form-control">
+                        <option value="">Pilih Kategori</option>
+                        <option value="Bangunan">Bangunan</option>
+                        <option value="Liturgi">Liturgi</option>
+                        <option value="Pakaian Misa">Pakaian Misa</option>
+                        <option value="Pakaian Misdinar">Pakaian Misdinar</option>
+                        <option value="Buku Misa">Buku Misa</option>
+                        <option value="Mebulair">Mebulair</option>
+                        <option value="Alat Elektronik">Alat Elektronik</option>
+                        <option value="Alat Rumah Tangga">Alat Rumah Tangga</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-row">
-                <div class="form-group third">
-                    <label for="jumlah">Jumlah</label>
-                    <input type="number" id="jumlah" name="jumlah" required class="form-control" min="0">
+                <div class="form-group half">
+                    <label for="nama_barang">Nama Barang</label>
+                    <input type="text" id="nama_barang" name="nama_barang" maxlength="50" required class="form-control">
                 </div>
 
+                <div class="form-group half">
+                    <label for="tgl_pengadaan">Tanggal Pengadaan</label>
+                    <input type="date" id="tgl_pengadaan" name="tgl_pengadaan" required class="form-control">
+                </div>
+            </div>
+
+            <div class="form-row">
                 <div class="form-group third">
                     <label for="jumlah_total">Jumlah Total</label>
                     <input type="number" id="jumlah_total" name="jumlah_total" required class="form-control" min="0">
@@ -126,9 +148,7 @@ if(isset($_POST['submit'])) {
                     <label for="satuan">Satuan</label>
                     <input type="text" id="satuan" name="satuan" maxlength="10" required class="form-control">
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group third">
                     <label for="kondisi">Kondisi</label>
                     <select id="kondisi" name="kondisi" required class="form-control">
@@ -137,8 +157,10 @@ if(isset($_POST['submit'])) {
                         <option value="Lama">Lama</option>
                     </select>
                 </div>
+            </div>
 
-                <div class="form-group third">
+            <div class="form-row">
+                <div class="form-group half">
                     <label for="sumber">Sumber Pengadaan</label>
                     <select id="sumber" name="sumber" required class="form-control">
                         <option value="">Pilih Sumber</option>
@@ -148,25 +170,19 @@ if(isset($_POST['submit'])) {
                     </select>
                 </div>
 
-                <div class="form-group third">
-                    <label for="tgl_pengadaan">Tanggal Pengadaan</label>
-                    <input type="date" id="tgl_pengadaan" name="tgl_pengadaan" required class="form-control">
-                </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group half">
                     <label for="harga">Harga</label>
                     <input type="text" id="harga" name="harga" required class="form-control" 
                            onkeyup="formatRupiah(this)" maxlength="30">
                 </div>
+            </div>
 
-                <div class="form-group half">
+            <div class="form-row">
+                <div class="form-group">
                     <label for="keterangan">Keterangan</label>
                     <textarea id="keterangan" name="keterangan" maxlength="100" class="form-control"></textarea>
                 </div>
             </div>
-
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">
                     <i class="fas fa-save"></i> Simpan
