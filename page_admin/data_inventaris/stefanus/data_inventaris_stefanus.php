@@ -51,6 +51,7 @@ if(isset($_POST['ajax'])) {
                 <th>Sumber</th>
                 <th>Harga</th>
                 <th>Keterangan</th>
+                <th>Nama Akun</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -72,6 +73,7 @@ if(isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['sumber']); ?></td>
                     <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                     <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                    <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     <td>
                         <div class="action-buttons">
                             <a href="index_admin.php?page_admin=data_inventaris/stefanus/edit_inventaris_stefanus&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>
@@ -96,15 +98,22 @@ if(isset($_POST['ajax'])) {
     </table>
     </div>
 
+   <?php if ($total_pages > 0) { ?>
     <div class="pagination">
         <a href="javascript:void(0);" onclick="loadData(1)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>First</a>
-        <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&laquo;</a>
-        <?php for($i = max(1, $page - 2); $i <= min($page + 2, $total_pages); $i++) { ?>
+        <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&lt;&lt;</a>
+        
+        <?php
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
+        for ($i = $start_page; $i <= $end_page; $i++) { ?>
             <a href="javascript:void(0);" onclick="loadData(<?= $i; ?>)" <?= ($i == $page ? 'class="active"' : '') ?>><?= $i; ?></a>
         <?php } ?>
-        <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&raquo;</a>
+        
+        <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&gt;&gt;</a>
         <a href="javascript:void(0);" onclick="loadData(<?= $total_pages; ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>Last</a>
     </div>
+    <?php } ?>
    <div class="category-list">
     <?php 
     require_once("config/koneksi.php");

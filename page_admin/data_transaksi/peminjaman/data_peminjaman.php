@@ -8,14 +8,13 @@ if(isset($_POST['ajax'])) {
     $search = isset($_POST['search']) ? trim($_POST['search']) : '';
     $lokasi_filter = isset($_POST['lokasi_filter']) ? trim($_POST['lokasi_filter']) : 'Paroki';
 
-    // Build where clause untuk search dan filter lokasi
     $where = "";
     $conditions = array();
     
     // Filter lokasi (default: Paroki)
     if (!empty($lokasi_filter)) {
         $lokasi_escaped = mysqli_real_escape_string($koneksi, $lokasi_filter);
-        $conditions[] = "lokasi_pinjam = '$lokasi_escaped'";
+        $conditions[] = "lokasi_simpan = '$lokasi_escaped'";
     }
     
     // Search
@@ -37,7 +36,7 @@ if(isset($_POST['ajax'])) {
     // Ambil data
     $query = "SELECT id_pinjam, no_peminjaman, tanggal_pinjam, lokasi_simpan, 
                      kode_barang, nama_barang, jumlah_pinjam, satuan, 
-                     lokasi_pinjam, nama_peminjam, keterangan, status 
+                     lokasi_pinjam, nama_peminjam, keterangan, status , nama_akun
               FROM peminjaman $where 
               ORDER BY id_pinjam ASC 
               LIMIT $start, $limit";
@@ -61,6 +60,7 @@ if(isset($_POST['ajax'])) {
                     <th>Nama Peminjam</th>
                     <th>Keterangan</th>
                     <th>Status</th>
+                    <th>Nama Akun</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,6 +93,7 @@ if(isset($_POST['ajax'])) {
                         <td><?= htmlspecialchars($row['nama_peminjam']); ?></td>
                         <td><?= htmlspecialchars($row['keterangan']); ?></td>
                         <td><span class="<?= $status_class ?>"><?= htmlspecialchars($status_text); ?></span></td>
+                       <td><?= htmlspecialchars($row['nama_akun'] ?? 'Tidak ada'); ?></td>
                     </tr>
                 <?php } ?>
                 <?php if (mysqli_num_rows($result) == 0) { ?>

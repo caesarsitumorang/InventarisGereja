@@ -1,6 +1,8 @@
 <?php
 require_once("config/koneksi.php");
 
+// Ambil username session untuk pengembali otomatis
+$namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 // Fungsi generate nomor perbaikan otomatis
 function generateNoPerbaikan($koneksi) {
     $prefix = "PB";
@@ -18,7 +20,12 @@ function generateNoPerbaikan($koneksi) {
     return $prefix . $newNumber;
 }
 
-$kerusakan = mysqli_query($koneksi, "SELECT * FROM kerusakan ORDER BY no_kerusakan ASC");
+// Ambil kerusakan yang belum ada di perbaikan
+$kerusakan = mysqli_query($koneksi, "
+    SELECT * FROM kerusakan 
+    WHERE no_kerusakan NOT IN (SELECT no_kerusakan FROM perbaikan) 
+    ORDER BY no_kerusakan ASC
+");
 
 if (isset($_POST['submit'])) {
     $no_perbaikan = generateNoPerbaikan($koneksi);
@@ -27,21 +34,23 @@ if (isset($_POST['submit'])) {
     $biaya_perbaikan = $_POST['biaya_perbaikan'];
     $keterangan = $_POST['keterangan'];
 
-    // ✅ Cek apakah no_kerusakan ada
-    $cek = mysqli_prepare($koneksi, "SELECT no_kerusakan FROM kerusakan WHERE no_kerusakan = ?");
+    // Cek apakah no_kerusakan ada dan belum diperbaiki
+    $cek = mysqli_prepare($koneksi, "SELECT no_kerusakan FROM kerusakan 
+                                      WHERE no_kerusakan = ? 
+                                      AND no_kerusakan NOT IN (SELECT no_kerusakan FROM perbaikan)");
     mysqli_stmt_bind_param($cek, "s", $no_kerusakan);
     mysqli_stmt_execute($cek);
     mysqli_stmt_store_result($cek);
 
     if (mysqli_stmt_num_rows($cek) == 0) {
         echo "<script>
-                alert('Nomor kerusakan tidak ditemukan, pastikan pilih dari daftar!');
+                alert('Nomor kerusakan tidak valid atau sudah diperbaiki!');
                 window.history.back();
               </script>";
         exit;
     }
 
-    // ✅ Ambil data kerusakan
+    // Ambil data kerusakan
     $sqlKerusakan = "SELECT * FROM kerusakan WHERE no_kerusakan = ?";
     $stmtKerusakan = mysqli_prepare($koneksi, $sqlKerusakan);
     mysqli_stmt_bind_param($stmtKerusakan, "s", $no_kerusakan);
@@ -54,26 +63,34 @@ if (isset($_POST['submit'])) {
         $lokasi_simpan = $row['lokasi_simpan'];
         $jumlah        = $row['jumlah'];
         $satuan        = $row['satuan'];
-        $ket_rusak     = $row['keterangan']; // dari tabel kerusakan
+        $ket_rusak     = $row['keterangan'];
 
-        // ✅ Insert ke tabel perbaikan
+        // Insert ke tabel perbaikan
         $query = "INSERT INTO perbaikan 
-                  (no_perbaikan, tanggal_perbaikan, no_kerusakan, kode_barang, nama_barang, lokasi_simpan, jumlah, satuan, biaya_perbaikan, keterangan) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                  (no_perbaikan, tanggal_perbaikan, no_kerusakan, kode_barang, nama_barang, lokasi_simpan, jumlah, satuan, biaya_perbaikan, keterangan, nama_akun) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?  , ?)";
         $stmt = mysqli_prepare($koneksi, $query);
-        mysqli_stmt_bind_param($stmt, "ssssssisis", 
+        mysqli_stmt_bind_param($stmt, "ssssssisiss", 
             $no_perbaikan, 
             $tanggal_perbaikan, 
             $no_kerusakan, 
             $kode_barang, 
             $nama_barang, 
             $lokasi_simpan, 
-            $jumlah, 
+            $jumlah,    
             $satuan, 
             $biaya_perbaikan, 
-            $keterangan 
+            $keterangan ,
+            $namaAkun
         );
         if (mysqli_stmt_execute($stmt)) {
+
+            // Update jumlah inventaris sesuai jumlah kerusakan yang diperbaiki
+            $updateInventaris = "UPDATE inventaris SET jumlah = jumlah + ? WHERE kode_barang = ?";
+            $stmtInv = mysqli_prepare($koneksi, $updateInventaris);
+            mysqli_stmt_bind_param($stmtInv, "is", $jumlah, $kode_barang);
+            mysqli_stmt_execute($stmtInv);
+
             echo "<script>
                     alert('Data perbaikan berhasil ditambahkan');
                     window.location.href='index_admin_utama.php?page_admin_utama=data_transaksi/perbaikan/data_perbaikan';
@@ -189,6 +206,7 @@ function updateDataKerusakan() {
     document.getElementById('ket_rusak').value     = selected.getAttribute('data-ket') || '';
 }
 </script>
+
 
 <style>
     .form-group.third {

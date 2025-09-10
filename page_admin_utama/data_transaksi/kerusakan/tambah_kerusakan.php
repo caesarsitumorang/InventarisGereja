@@ -18,9 +18,11 @@ function generateNoKerusakan($koneksi) {
     return $prefix . $newNumber;
 }
 
-// Ambil barang dari inventaris
-$barang = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan 
-                                  FROM inventaris ORDER BY nama_barang ASC");
+// Ambil semua inventaris
+$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan FROM inventaris ORDER BY nama_barang ASC");
+
+// Ambil semua lokasi unik
+$lokasi = mysqli_query($koneksi, "SELECT DISTINCT lokasi_simpan FROM inventaris ORDER BY lokasi_simpan ASC");
 
 if (isset($_POST['submit'])) {
     $no_kerusakan = generateNoKerusakan($koneksi);
@@ -31,19 +33,20 @@ if (isset($_POST['submit'])) {
     $jumlah = (int)$_POST['jumlah'];
     $satuan = $_POST['satuan'];
     $keterangan = $_POST['keterangan'];
-
+     if (session_status() === PHP_SESSION_NONE) session_start();
+    $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
     // Insert ke tabel kerusakan
     $query = "INSERT INTO kerusakan 
-              (no_kerusakan, tanggal_kerusakan, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, keterangan) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+              (no_kerusakan, tanggal_kerusakan, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, keterangan, nama_akun) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "sssssiss",
+    mysqli_stmt_bind_param($stmt, "sssssisss",
         $no_kerusakan, $tanggal_kerusakan, $lokasi_simpan, $kode_barang, 
-        $nama_barang, $jumlah, $satuan, $keterangan
+        $nama_barang, $jumlah, $satuan, $keterangan, $namaAkun
     );
 
     if (mysqli_stmt_execute($stmt)) {
-        // Kurangi jumlah barang di inventaris (kolom jumlah, bukan jumlah_total)
+        // Kurangi jumlah barang di inventaris
         $update = "UPDATE inventaris SET jumlah = jumlah - ? WHERE kode_barang = ?";
         $stmt2 = mysqli_prepare($koneksi, $update);
         mysqli_stmt_bind_param($stmt2, "is", $jumlah, $kode_barang);
@@ -79,30 +82,26 @@ if (isset($_POST['submit'])) {
 
             <div class="form-row">
                 <div class="form-group half">
-                    <label>Nama Barang</label>
-                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateDataBarang()">
-                        <option value="">Pilih Barang</option>
-                        <?php while ($row = mysqli_fetch_assoc($barang)) { ?>
-                            <option value="<?= htmlspecialchars($row['nama_barang']); ?>"
-                                data-kode="<?= $row['kode_barang']; ?>"
-                                data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>"
-                                data-satuan="<?= htmlspecialchars($row['satuan']); ?>"
-                                data-jumlah="<?= $row['jumlah']; ?>">
-                                <?= $row['nama_barang']; ?>
-                            </option>
+                    <label>Lokasi Simpan</label>
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control" onchange="loadBarang()">
+                        <option value="">Pilih Lokasi</option>
+                        <?php while ($row = mysqli_fetch_assoc($lokasi)) { ?>
+                            <option value="<?= htmlspecialchars($row['lokasi_simpan']); ?>"><?= htmlspecialchars($row['lokasi_simpan']); ?></option>
                         <?php } ?>
                     </select>
                 </div>
                 <div class="form-group half">
-                    <label>Kode Barang</label>
-                    <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
+                    <label>Nama Barang</label>
+                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateDataBarang()">
+                        <option value="">Pilih Barang</option>
+                    </select>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group half">
-                    <label>Lokasi Simpan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" readonly required class="form-control">
+                    <label>Kode Barang</label>
+                    <input type="text" id="kode_barang" name="kode_barang" readonly required class="form-control">
                 </div>
                 <div class="form-group half">
                     <label>Jumlah Rusak</label>
@@ -128,23 +127,59 @@ if (isset($_POST['submit'])) {
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
-                <a href="index_admin_utama.php?page_admin_utama=data_transaksi/kerusakan/data_kerusakan" class="btn-cancel">Batal</a>
+                <a href="index_admin.php?page_admin=data_transaksi/kerusakan/data_kerusakan" class="btn-cancel">Batal</a>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+const inventaris = [
+<?php
+mysqli_data_seek($inventaris, 0);
+while($row = mysqli_fetch_assoc($inventaris)) {
+    echo "{kode_barang:'".addslashes($row['kode_barang'])."', nama_barang:'".addslashes($row['nama_barang'])."', lokasi_simpan:'".addslashes($row['lokasi_simpan'])."', jumlah:".(int)$row['jumlah'].", satuan:'".addslashes($row['satuan'])."'},";
+}
+?>
+];
+
+function loadBarang() {
+    const lokasi = document.getElementById('lokasi_simpan').value;
+    const nama_barang = document.getElementById('nama_barang');
+    nama_barang.innerHTML = '<option value="">Pilih Barang</option>';
+
+    if (!lokasi) return;
+
+    inventaris.forEach(item => {
+        if(item.lokasi_simpan === lokasi) {
+            const option = document.createElement('option');
+            option.value = item.nama_barang;
+            option.text = item.nama_barang;
+            option.setAttribute('data-kode', item.kode_barang);
+            option.setAttribute('data-jumlah', item.jumlah);
+            option.setAttribute('data-satuan', item.satuan);
+            nama_barang.appendChild(option);
+        }
+    });
+
+    // reset detail
+    document.getElementById('kode_barang').value = '';
+    document.getElementById('stok').value = '';
+    document.getElementById('satuan').value = '';
+    document.getElementById('jumlah').value = '';
+}
+
 function updateDataBarang() {
-    var select = document.getElementById('nama_barang');
-    var selected = select.options[select.selectedIndex];
+    const select = document.getElementById('nama_barang');
+    const selected = select.options[select.selectedIndex];
 
     document.getElementById('kode_barang').value   = selected.getAttribute('data-kode') || '';
-    document.getElementById('lokasi_simpan').value = selected.getAttribute('data-lokasi') || '';
-    document.getElementById('satuan').value        = selected.getAttribute('data-satuan') || '';
     document.getElementById('stok').value          = selected.getAttribute('data-jumlah') || '';
+    document.getElementById('satuan').value        = selected.getAttribute('data-satuan') || '';
+    document.getElementById('jumlah').max          = selected.getAttribute('data-jumlah') || '';
 }
 </script>
+
 
 <style>
     .form-group.third {

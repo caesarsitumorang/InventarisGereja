@@ -55,6 +55,7 @@ if(isset($_POST['ajax'])) {
                 <th>Sumber</th>
                 <th>Harga</th>
                 <th>Keterangan</th>
+                <th>Nama Akun</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -76,6 +77,7 @@ if(isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['sumber']); ?></td>
                     <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                     <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                    <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     <td>
                     <div class="action-buttons">
                             <a href="index_admin_utama.php?page_admin_utama=data_inventaris/fidelis/edit_inventaris_fidelis&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>

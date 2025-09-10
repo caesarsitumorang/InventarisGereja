@@ -82,6 +82,7 @@ if(isset($_POST['submit'])) {
 }
 ?>
 
+
 <div class="form-container">
     <div class="form-card">
         <div class="form-header">
@@ -92,7 +93,7 @@ if(isset($_POST['submit'])) {
             <div class="form-row">
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Penyimpanan</label>
-                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control" onchange="updateKodeBarang()">
                         <option value="">Pilih Lokasi</option>
                         <option value="Paroki">Paroki</option>
                         <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
@@ -113,7 +114,7 @@ if(isset($_POST['submit'])) {
 
                 <div class="form-group half">
                     <label for="kategori">Kategori</label>
-                    <select id="kategori" name="kategori" required class="form-control">
+                    <select id="kategori" name="kategori" required class="form-control" onchange="updateKodeBarang()">
                         <option value="">Pilih Kategori</option>
                         <option value="Bangunan">Bangunan</option>
                         <option value="Liturgi">Liturgi</option>
@@ -127,6 +128,17 @@ if(isset($_POST['submit'])) {
                 </div>
             </div>
 
+            <!-- Kode Barang (readonly) -->
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="kode_barang">Kode Barang</label>
+                    <input type="text" id="kode_barang" name="kode_barang_display" class="form-control" readonly>
+                    <!-- hidden input untuk submit ke server -->
+                    <input type="hidden" id="kode_barang_hidden" name="kode_barang">
+                </div>
+            </div>
+
+            <!-- Sisa Form -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="nama_barang">Nama Barang</label>
@@ -189,13 +201,33 @@ if(isset($_POST['submit'])) {
                 <button type="submit" name="submit" class="btn-submit">
                     <i class="fas fa-save"></i> Simpan
                 </button>
-                <a href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_rasul/data_inventaris_paulus_rasul" class="btn-cancel">
+                <a href="index_admin_utama.php?page_admin_utama=data_inventaris/agustinus/data_inventaris_agustinus" class="btn-cancel">
                     <i class="fas fa-times"></i> Batal
                 </a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+function updateKodeBarang() {
+    let kategori = document.getElementById("kategori").value;
+    let lokasi   = document.getElementById("lokasi_simpan").value;
+
+    if(kategori && lokasi){
+        // panggil get_kode_barang.php di folder yang sesuai
+        fetch("page_admin_utama/data_inventaris/agustinus/get_kode_barang.php?kategori="+encodeURIComponent(kategori)+"&lokasi="+encodeURIComponent(lokasi))
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById("kode_barang").value = data;
+            document.getElementById("kode_barang_hidden").value = data;
+        });
+    } else {
+        document.getElementById("kode_barang").value = "";
+        document.getElementById("kode_barang_hidden").value = "";
+    }
+}
+</script>
 
 
 <style>

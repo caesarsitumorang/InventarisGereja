@@ -39,7 +39,7 @@ if (isset($_POST['ajax'])) {
 
     // Ambil data sesuai pagination
     $query = "SELECT id_rusak, no_kerusakan, tanggal_kerusakan, lokasi_simpan, 
-                     kode_barang, nama_barang, jumlah, satuan, keterangan
+                     kode_barang, nama_barang, jumlah, satuan, keterangan, nama_akun
               FROM kerusakan $where
               ORDER BY id_rusak ASC
               LIMIT $start, $limit";
@@ -60,6 +60,7 @@ if (isset($_POST['ajax'])) {
                     <th>Jumlah</th>
                     <th>Satuan</th>
                     <th>Keterangan</th>
+                    <th>Nama Akun</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,6 +81,7 @@ if (isset($_POST['ajax'])) {
                         <td><?= htmlspecialchars($row['jumlah']); ?></td>
                         <td><?= htmlspecialchars($row['satuan']); ?></td>
                         <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                        <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     </tr>
                 <?php } ?>
                 <?php if (mysqli_num_rows($result) == 0) { ?>

@@ -24,7 +24,7 @@ function generateNoPeminjaman($koneksi) {
 // Ambil semua data inventaris
 $inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan FROM inventaris ORDER BY lokasi_simpan, nama_barang ASC");
 
-// Simpan ke array untuk dipakai di JS
+// Simpan ke array untuk JS
 $data_inventaris = [];
 while($row = mysqli_fetch_assoc($inventaris)) {
     $data_inventaris[] = $row;
@@ -47,7 +47,7 @@ if(isset($_POST['submit'])) {
     $status = "Belum Dikembalikan"; // otomatis
     $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
-    // === Insert ke tabel peminjaman ===
+    // Insert ke tabel peminjaman
     $query = "INSERT INTO peminjaman 
               (no_peminjaman, tanggal_pinjam, lokasi_simpan, kode_barang, nama_barang, 
                jumlah_pinjam, satuan, lokasi_pinjam, nama_peminjam, keterangan, status, nama_akun) 
@@ -60,7 +60,7 @@ if(isset($_POST['submit'])) {
     );
 
     if(mysqli_stmt_execute($stmt)) {
-        // === Update stok inventaris ===
+        // Update stok inventaris
         $update = "UPDATE inventaris SET jumlah = jumlah - ? WHERE kode_barang = ?";
         $stmt2 = mysqli_prepare($koneksi, $update);
         mysqli_stmt_bind_param($stmt2, "is", $jumlah_pinjam, $kode_barang);
@@ -95,7 +95,6 @@ if(isset($_POST['submit'])) {
                 </div>
             </div>
 
-            <!-- Pilih Lokasi Simpan -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Simpan</label>
@@ -108,13 +107,12 @@ if(isset($_POST['submit'])) {
                 </div>
                 <div class="form-group half">
                     <label for="nama_barang">Nama Barang</label>
-                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
+                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()" disabled>
                         <option value="">Pilih Nama Barang</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Detail Barang -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="kode_barang">Kode Barang</label>
@@ -153,6 +151,8 @@ if(isset($_POST['submit'])) {
                 <textarea id="keterangan" name="keterangan" class="form-control"></textarea>
             </div>
 
+            <input type="hidden" name="status" value="Belum Dikembalikan">
+
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
                 <a href="index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman" class="btn-cancel">Batal</a>
@@ -165,23 +165,27 @@ if(isset($_POST['submit'])) {
 // Simpan semua inventaris di JS
 var inventaris = <?= json_encode($data_inventaris); ?>;
 
-// Filter barang sesuai lokasi
 function filterBarang() {
     var lokasi = document.getElementById("lokasi_simpan").value;
     var barangSelect = document.getElementById("nama_barang");
     barangSelect.innerHTML = "<option value=''>Pilih Nama Barang</option>";
 
-    inventaris.forEach(function(item) {
-        if (item.lokasi_simpan === lokasi) {
-            var option = document.createElement("option");
-            option.value = item.nama_barang;
-            option.text = item.nama_barang;
-            option.setAttribute("data-kode", item.kode_barang);
-            option.setAttribute("data-jumlah", item.jumlah);
-            option.setAttribute("data-satuan", item.satuan);
-            barangSelect.appendChild(option);
-        }
-    });
+    if(lokasi === "") {
+        barangSelect.disabled = true;
+    } else {
+        barangSelect.disabled = false;
+        inventaris.forEach(function(item) {
+            if (item.lokasi_simpan === lokasi) {
+                var option = document.createElement("option");
+                option.value = item.nama_barang;
+                option.text = item.nama_barang;
+                option.setAttribute("data-kode", item.kode_barang);
+                option.setAttribute("data-jumlah", item.jumlah);
+                option.setAttribute("data-satuan", item.satuan);
+                barangSelect.appendChild(option);
+            }
+        });
+    }
 
     // reset detail
     document.getElementById("kode_barang").value = "";
@@ -190,7 +194,6 @@ function filterBarang() {
     document.getElementById("jumlah_pinjam").value = "";
 }
 
-// Update detail barang
 function updateBarang() {
     var select = document.getElementById("nama_barang");
     var kode = select.options[select.selectedIndex].getAttribute("data-kode");
@@ -202,7 +205,6 @@ function updateBarang() {
     document.getElementById("satuan").value = satuan;
 }
 
-// Validasi jumlah pinjam
 function validasiJumlah() {
     var jumlahPinjam = parseInt(document.getElementById("jumlah_pinjam").value) || 0;
     var jumlahTersedia = parseInt(document.getElementById("jumlah_tersedia").value) || 0;

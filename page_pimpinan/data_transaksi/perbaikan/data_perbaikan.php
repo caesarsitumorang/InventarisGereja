@@ -40,7 +40,7 @@ if (isset($_POST['ajax'])) {
     // Ambil data
     $query = "SELECT id_perbaikan, no_perbaikan, tanggal_perbaikan, no_kerusakan,
                      kode_barang, nama_barang, lokasi_simpan, jumlah, satuan, 
-                     biaya_perbaikan, keterangan
+                     biaya_perbaikan, keterangan, nama_akun
               FROM perbaikan $where
               ORDER BY id_perbaikan ASC
               LIMIT $start, $limit";
@@ -63,6 +63,7 @@ if (isset($_POST['ajax'])) {
                     <th>Satuan</th>
                     <th>Biaya Perbaikan</th>
                     <th>Keterangan</th>
+                    <th>Nama Akun</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +82,7 @@ if (isset($_POST['ajax'])) {
                         <td><?= htmlspecialchars($row['satuan']); ?></td>
                         <td><?= htmlspecialchars(number_format($row['biaya_perbaikan'], 0, ',', '.')); ?></td>
                         <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                        <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     </tr>
                 <?php } ?>
                 <?php if (mysqli_num_rows($result) == 0) { ?>

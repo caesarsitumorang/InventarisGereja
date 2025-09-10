@@ -3,7 +3,6 @@ require_once("config/koneksi.php");
 
 // === Fungsi Generate Kode Barang Berdasarkan Kategori & Lokasi ===
 function generateKodeBarang($koneksi, $kategori, $lokasi) {
-    // Mapping kategori -> base kode
     $kategoriPrefix = [
         "Bangunan" => 10001,
         "Liturgi" => 20001,
@@ -16,12 +15,11 @@ function generateKodeBarang($koneksi, $kategori, $lokasi) {
     ];
 
     if (!isset($kategoriPrefix[$kategori])) {
-        return null; // kategori tidak ditemukan
+        return null;
     }
 
     $baseKode = $kategoriPrefix[$kategori];
 
-    // cek kode terakhir di lokasi & kategori yg sama
     $query = "SELECT kode_barang 
               FROM inventaris 
               WHERE kategori = ? AND lokasi_simpan = ? 
@@ -32,9 +30,9 @@ function generateKodeBarang($koneksi, $kategori, $lokasi) {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        return (string)($row['kode_barang'] + 1); // lanjut nomor terakhir
+        return (string)($row['kode_barang'] + 1);
     } else {
-        return (string)$baseKode; 
+        return (string)$baseKode;
     }
 }
 
@@ -44,7 +42,7 @@ if(isset($_POST['submit'])) {
     $kategori      = mysqli_real_escape_string($koneksi, $_POST['kategori']);
     $lokasi_simpan = substr(mysqli_real_escape_string($koneksi, $_POST['lokasi_simpan']), 0, 100);
     $jumlah_total  = (int)$_POST['jumlah_total'];
-    $jumlah        = $jumlah_total; // otomatis sama dengan jumlah_total
+    $jumlah        = $jumlah_total;
     $satuan        = substr(mysqli_real_escape_string($koneksi, $_POST['satuan']), 0, 10);
     $tgl_pengadaan = mysqli_real_escape_string($koneksi, $_POST['tgl_pengadaan']);
     $kondisi       = mysqli_real_escape_string($koneksi, $_POST['kondisi']);
@@ -52,19 +50,17 @@ if(isset($_POST['submit'])) {
     $harga         = substr(str_replace([',', '.'], '', $_POST['harga']), 0, 30);
     $keterangan    = substr(mysqli_real_escape_string($koneksi, $_POST['keterangan']), 0, 100);
 
-    // ambil username dari session
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
-    // generate kode barang berdasarkan kategori & lokasi
+    // generate kode barang
     $kode_barang = generateKodeBarang($koneksi, $kategori, $lokasi_simpan);
 
     $query = "INSERT INTO inventaris 
               (kode_barang, nama_barang, kategori, lokasi_simpan, jumlah, jumlah_total, satuan, tgl_pengadaan, kondisi, sumber, harga, keterangan, nama_akun) 
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-              
     $stmt = mysqli_prepare($koneksi, $query);
     mysqli_stmt_bind_param($stmt, "ssssiisssssss", 
         $kode_barang, $nama_barang, $kategori, $lokasi_simpan, $jumlah, $jumlah_total,
@@ -82,8 +78,6 @@ if(isset($_POST['submit'])) {
 }
 ?>
 
-
-
 <div class="form-container">
     <div class="form-card">
         <div class="form-header">
@@ -94,7 +88,7 @@ if(isset($_POST['submit'])) {
             <div class="form-row">
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Penyimpanan</label>
-                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control">
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control" onchange="updateKodeBarang()">
                         <option value="">Pilih Lokasi</option>
                         <option value="Paroki">Paroki</option>
                         <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
@@ -115,7 +109,7 @@ if(isset($_POST['submit'])) {
 
                 <div class="form-group half">
                     <label for="kategori">Kategori</label>
-                    <select id="kategori" name="kategori" required class="form-control">
+                    <select id="kategori" name="kategori" required class="form-control" onchange="updateKodeBarang()">
                         <option value="">Pilih Kategori</option>
                         <option value="Bangunan">Bangunan</option>
                         <option value="Liturgi">Liturgi</option>
@@ -129,6 +123,17 @@ if(isset($_POST['submit'])) {
                 </div>
             </div>
 
+            <!-- Kode Barang (readonly) -->
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="kode_barang">Kode Barang</label>
+                    <input type="text" id="kode_barang" name="kode_barang_display" class="form-control" readonly>
+                    <!-- hidden input untuk submit ke server -->
+                    <input type="hidden" id="kode_barang_hidden" name="kode_barang">
+                </div>
+            </div>
+
+            <!-- Sisa Form -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="nama_barang">Nama Barang</label>
@@ -198,6 +203,27 @@ if(isset($_POST['submit'])) {
         </form>
     </div>
 </div>
+
+<script>
+function updateKodeBarang() {
+    let kategori = document.getElementById("kategori").value;
+    let lokasi   = document.getElementById("lokasi_simpan").value;
+
+    if(kategori && lokasi){
+        // panggil get_kode_barang.php di folder yang sesuai
+        fetch("page_admin_utama/data_inventaris/agustinus/get_kode_barang.php?kategori="+encodeURIComponent(kategori)+"&lokasi="+encodeURIComponent(lokasi))
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById("kode_barang").value = data;
+            document.getElementById("kode_barang_hidden").value = data;
+        });
+    } else {
+        document.getElementById("kode_barang").value = "";
+        document.getElementById("kode_barang_hidden").value = "";
+    }
+}
+</script>
+
 
 <style>
     .form-group.third {

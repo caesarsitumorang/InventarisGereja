@@ -38,7 +38,7 @@ if (isset($_POST['ajax'])) {
     $total_pages = ceil($total_records / $limit);
 
     // Ambil data mutasi
-    $query = "SELECT no_mutasi, tanggal_mutasi, lokasi_awal, kode_barang, nama_barang, jumlah, satuan, lokasi_mutasi, keterangan
+    $query = "SELECT no_mutasi, tanggal_mutasi, lokasi_awal, kode_barang, nama_barang, jumlah, satuan, lokasi_mutasi, keterangan, nama_akun
               FROM mutasi $where
               ORDER BY tanggal_mutasi DESC, no_mutasi ASC
               LIMIT $start, $limit";
@@ -60,6 +60,7 @@ if (isset($_POST['ajax'])) {
                     <th>Satuan</th>
                     <th>Lokasi Mutasi</th>
                     <th>Keterangan</th>
+                    <th>Nama Akun</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,6 +78,7 @@ if (isset($_POST['ajax'])) {
                         <td><?= htmlspecialchars($row['satuan']); ?></td>
                         <td><?= htmlspecialchars($row['lokasi_mutasi']); ?></td>
                         <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                        <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     </tr>
                 <?php } ?>
                 <?php if (mysqli_num_rows($result) == 0) { ?>

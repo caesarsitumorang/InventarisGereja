@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_bind_param($stmt, $types, ...$params);
 
         if (mysqli_stmt_execute($stmt)) {
-            echo "<script>alert('Data berhasil diperbarui'); window.location='page_admin.php?page_admin=data_akun/data_akun';</script>";
+            echo "<script>alert('Data berhasil diperbarui'); window.location='index_admin.php?page_admin=data_akun/data_akun';</script>";
             exit;
         } else {
             echo "Gagal update data: " . mysqli_error($koneksi);
@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-actions">
                 <button type="submit" name="submit">Update</button>
-                <a href="page_admin.php?page_admin=data_akun/data_akun">Batal</a>
+                <a href="index_admin.php?page_admin=data_akun/data_akun">Batal</a>
             </div>
         </form>
     </div>

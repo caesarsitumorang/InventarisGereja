@@ -1,14 +1,19 @@
 <?php
 require_once("config/koneksi.php");
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Fungsi generate nomor pengembalian otomatis
+// Ambil username session untuk pengembali otomatis
+$namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
+
+// Fungsi Generate No Pengembalian
 function generateNoPengembalian($koneksi) {
     $prefix = "PG";
     $query = "SELECT no_pengembalian FROM pengembalian 
               WHERE no_pengembalian LIKE '$prefix%' 
               ORDER BY no_pengembalian DESC LIMIT 1";
     $result = mysqli_query($koneksi, $query);
-
     if ($row = mysqli_fetch_assoc($result)) {
         $lastNumber = (int)substr($row['no_pengembalian'], 2);
         $newNumber = str_pad($lastNumber + 1, 7, "0", STR_PAD_LEFT);
@@ -18,34 +23,49 @@ function generateNoPengembalian($koneksi) {
     return $prefix . $newNumber;
 }
 
-// Ambil data peminjaman untuk select
-$peminjaman = mysqli_query($koneksi, "SELECT no_peminjaman, nama_peminjam, kode_barang, nama_barang, lokasi_simpan, jumlah_pinjam, satuan 
-                                      FROM peminjaman ORDER BY no_peminjaman ASC");
+// Ambil data peminjaman yang BELUM dikembalikan
+$peminjaman = mysqli_query($koneksi, "
+    SELECT p.no_peminjaman, p.nama_peminjam, p.kode_barang, p.nama_barang, p.lokasi_simpan, p.jumlah_pinjam, p.satuan 
+    FROM peminjaman p
+    LEFT JOIN pengembalian pg ON p.no_peminjaman = pg.no_peminjaman
+    WHERE p.status != 'Sudah Dikembalikan'
+    ORDER BY p.no_peminjaman ASC
+");
 
 if (isset($_POST['submit'])) {
     $no_pengembalian = generateNoPengembalian($koneksi);
     $tanggal_kembali = $_POST['tanggal_kembali'];
-    $no_peminjaman = $_POST['no_peminjaman'];
-    $lokasi_simpan = $_POST['lokasi_simpan'];
-    $kode_barang = $_POST['kode_barang'];
-    $nama_barang = $_POST['nama_barang'];
-    $jumlah = (int)$_POST['jumlah'];
-    $satuan = $_POST['satuan'];
-    $pengembali = $_POST['pengembali'];
-    $kondisi_barang = $_POST['kondisi_barang'];
-    $keterangan = $_POST['keterangan'];
+    $no_peminjaman   = $_POST['no_peminjaman'];
+    $lokasi_simpan   = $_POST['lokasi_simpan'];
+    $kode_barang     = $_POST['kode_barang'];
+    $nama_barang     = $_POST['nama_barang'];
+    $jumlah          = (int)$_POST['jumlah'];
+    $satuan          = $_POST['satuan'];
+    $pengembali      = $_POST['pengembali']; // ambil dari input user, bukan session
+
+    $kondisi_barang  = $_POST['kondisi_barang'];
+    $keterangan      = $_POST['keterangan'];
 
     $query = "INSERT INTO pengembalian 
-              (no_pengembalian, tanggal_kembali, no_peminjaman, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, pengembali, kondisi_barang, keterangan) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (no_pengembalian, tanggal_kembali, no_peminjaman, lokasi_simpan, kode_barang, nama_barang, jumlah, satuan, pengembali, kondisi_barang, keterangan, nama_akun) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($koneksi, $query);
-    mysqli_stmt_bind_param($stmt, "ssssssissss",
+    mysqli_stmt_bind_param($stmt, "ssssssisssss",
         $no_pengembalian, $tanggal_kembali, $no_peminjaman, $lokasi_simpan,
-        $kode_barang, $nama_barang, $jumlah, $satuan, $pengembali, $kondisi_barang, $keterangan
+        $kode_barang, $nama_barang, $jumlah, $satuan, $pengembali, $kondisi_barang, $keterangan, $namaAkun
     );
 
     if (mysqli_stmt_execute($stmt)) {
+        // Update status peminjaman jadi sudah dikembalikan
+        mysqli_query($koneksi, "UPDATE peminjaman SET status='Sudah Dikembalikan' WHERE no_peminjaman='$no_peminjaman'");
+
+        // Update jumlah inventaris sesuai jumlah pengembalian
+        $updateInventaris = "UPDATE inventaris SET jumlah = jumlah + ? WHERE kode_barang = ?";
+        $stmtInv = mysqli_prepare($koneksi, $updateInventaris);
+        mysqli_stmt_bind_param($stmtInv, "is", $jumlah, $kode_barang);
+        mysqli_stmt_execute($stmtInv);
+
         echo "<script>
                 alert('Data pengembalian berhasil ditambahkan');
                 window.location.href='index_admin.php?page_admin=data_transaksi/pengembalian/data_pengembalian';
@@ -55,6 +75,8 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
+
 
 <div class="form-container">
     <div class="form-card">
@@ -81,7 +103,6 @@ if (isset($_POST['submit'])) {
                         <option value="">Pilih No Peminjaman</option>
                         <?php while ($row = mysqli_fetch_assoc($peminjaman)) { ?>
                             <option value="<?= $row['no_peminjaman']; ?>"
-                                data-nama="<?= htmlspecialchars($row['nama_peminjam']); ?>"
                                 data-barang="<?= htmlspecialchars($row['nama_barang']); ?>"
                                 data-kode="<?= $row['kode_barang']; ?>"
                                 data-lokasi="<?= htmlspecialchars($row['lokasi_simpan']); ?>"
@@ -94,7 +115,8 @@ if (isset($_POST['submit'])) {
                 </div>
                 <div class="form-group half">
                     <label>Nama Pengembali</label>
-                    <input type="text" id="pengembali" name="pengembali" readonly required class="form-control">
+                   <input type="text" id="pengembali" name="pengembali" required class="form-control">
+
                 </div>
             </div>
 
@@ -153,15 +175,13 @@ function updateDataPeminjaman() {
     var select = document.getElementById('no_peminjaman');
     var selected = select.options[select.selectedIndex];
 
-    document.getElementById('pengembali').value   = selected.getAttribute('data-nama') || '';
-    document.getElementById('nama_barang').value  = selected.getAttribute('data-barang') || '';
-    document.getElementById('kode_barang').value  = selected.getAttribute('data-kode') || '';
-    document.getElementById('lokasi_simpan').value= selected.getAttribute('data-lokasi') || '';
-    document.getElementById('jumlah').value       = selected.getAttribute('data-jumlah') || '';
-    document.getElementById('satuan').value       = selected.getAttribute('data-satuan') || '';
+    document.getElementById('nama_barang').value   = selected.getAttribute('data-barang') || '';
+    document.getElementById('kode_barang').value   = selected.getAttribute('data-kode') || '';
+    document.getElementById('lokasi_simpan').value = selected.getAttribute('data-lokasi') || '';
+    document.getElementById('jumlah').value        = selected.getAttribute('data-jumlah') || '';
+    document.getElementById('satuan').value        = selected.getAttribute('data-satuan') || '';
 }
 </script>
-
 
 <style>
     .form-group.third {

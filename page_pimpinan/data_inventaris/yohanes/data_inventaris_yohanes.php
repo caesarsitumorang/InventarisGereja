@@ -49,8 +49,9 @@ if(isset($_POST['ajax'])) {
                 <th>Tgl Pengadaan</th>
                 <th>Kondisi</th>
                 <th>Sumber</th>
-                <th>Harga</th>
+               <th>Harga</th>
                 <th>Keterangan</th>
+                <th>Nama Akun</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -72,6 +73,7 @@ if(isset($_POST['ajax'])) {
                     <td><?= htmlspecialchars($row['sumber']); ?></td>
                     <td>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                     <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                    <td><?= htmlspecialchars($row['nama_akun']); ?></td>
                     <td>
                         <div class="action-buttons">
                            
