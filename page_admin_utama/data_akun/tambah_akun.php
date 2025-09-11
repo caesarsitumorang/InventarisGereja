@@ -58,14 +58,28 @@ if(isset($_POST['submit'])) {
             </div>
 
             <div class="form-group">
-                <label for="peran">Peran</label>
-                <select id="peran" name="peran" required class="form-control">
-                    <option value="">Pilih Peran</option>
-                    <option value="admin_utama">Admin Utama</option>
-                    <option value="admin">Admin</option>
-                    <option value="pimpinan">Pimpinan</option>
-                </select>
-            </div>
+            <label for="peran">Peran</label>
+            <select id="peran" name="peran" required class="form-control">
+                <option value="">Pilih Peran</option>
+                <option value="admin_paroki">Admin Paroki</option>
+                <option value="pimpinan">Pimpinan</option>
+                
+                <option value="Stasi_Fidelis">Stasi St. Fidelis (Karo Simalem)</option>
+                <option value="Stasi_Yohanes">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
+                <option value="Stasi_Agustinus">Stasi St. Agustinus (Minas Barat)</option>
+                <option value="Stasi_Benediktus">Stasi St. Benediktus (Teluk Siak)</option>
+                <option value="Stasi_Paulus_inti">Stasi St. Paulus (Inti 4)</option>
+                <option value="Stasi_Fransiskus">Stasi St. Fransiskus Asisi (Inti 7)</option>
+                <option value="Stasi_Paulus">Stasi St. Paulus (Empang Pandan)</option>
+                <option value="Stasi_Maria">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
+                <option value="Stasi_Elisabet">Stasi Sta. Elisabet (Sialang Sakti)</option>
+                <option value="Stasi_Petrus">Stasi St. Petrus (Pangkalan Makmur)</option>
+                <option value="Stasi_Stefanus">Stasi St. Stefanus (Zamrud)</option>
+                <option value="Stasi_Mikael">Stasi St. Mikael (Siak Raya)</option>
+                <option value="Stasi_Paulus_Rasul">Stasi St. Paulus Rasul (Siak Merambai)</option>
+            </select>
+        </div>
+
 
             <div class="form-group">
                 <label for="alamat">Alamat</label>

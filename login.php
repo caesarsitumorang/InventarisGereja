@@ -15,32 +15,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $result = mysqli_query($koneksi, $query);
 
     if ($data = mysqli_fetch_assoc($result)) {
-        // Gunakan password_verify untuk cek hash
-        if (password_verify($password, $data['password'])) {
-            $_SESSION['username'] = $data['username'];
-            $_SESSION['id_akun'] = $data['id_akun'];
-            $_SESSION['peran'] = $data['peran'];
+    // Gunakan password_verify untuk cek hash
+    if (password_verify($password, $data['password'])) {
+        $_SESSION['username'] = $data['username'];
+        $_SESSION['id_akun'] = $data['id_akun'];
+        $_SESSION['peran'] = $data['peran'];
 
-            switch ($data['peran']) {
-                case 'admin_utama':
-                    header("Location: index_admin_utama.php");
-                    exit;
-                case 'admin':
-                    header("Location: index_admin.php");
-                    exit;
-                case 'pimpinan':
-                default:
-                    header("Location: index_pimpinan.php");
-                    exit;
-            }
-        } else {
-            echo "<script>alert('Password salah!'); window.location='login.php';</script>";
-            exit;
+        switch ($data['peran']) {
+            case 'admin_paroki':
+                header("Location: index_admin_utama.php");
+                exit;
+            case 'pimpinan':
+                header("Location: index_pimpinan.php");
+                exit;
+            // Role Stasi
+            case 'Stasi_Fidelis':
+                header("Location: index_stasi_fidelis.php");
+                exit;
+            case 'Stasi_Yohanes':
+                header("Location: index_stasi_yohanes.php");
+                exit;
+            case 'Stasi_Agustinus':
+                header("Location: index_stasi_agustinus.php");
+                exit;
+            case 'Stasi_Benediktus':
+                header("Location: index_stasi_benediktus.php");
+                exit;
+            case 'Stasi_Paulus_inti':
+                header("Location: index_stasi_paulus_inti.php");
+                exit;
+            case 'Stasi_Fransiskus':
+                header("Location: index_stasi_fransiskus.php");
+                exit;
+            case 'Stasi_Paulus':
+                header("Location: index_stasi_paulus.php");
+                exit;
+            case 'Stasi_Maria':
+                header("Location: index_stasi_maria.php");
+                exit;
+            case 'Stasi_Elisabet':
+                header("Location: index_stasi_elisabet.php");
+                exit;
+            case 'Stasi_Petrus':
+                header("Location: index_stasi_petrus.php");
+                exit;
+            case 'Stasi_Stefanus':
+                header("Location: index_stasi_stefanus.php");
+                exit;
+            case 'Stasi_Mikael':
+                header("Location: index_stasi_mikael.php");
+                exit;
+            case 'Stasi_Paulus_Rasul':
+                header("Location: index_stasi_paulus_rasul.php");
+                exit;
+
+            default:
+                echo "<script>alert('Role tidak dikenali!'); window.location='login.php';</script>";
+                exit;
         }
     } else {
-        echo "<script>alert('Username tidak ditemukan!'); window.location='login.php';</script>";
+        echo "<script>alert('Password salah!'); window.location='login.php';</script>";
         exit;
     }
+} else {
+    echo "<script>alert('Username tidak ditemukan!'); window.location='login.php';</script>";
+    exit;
+}
+
 }
 ?>
 

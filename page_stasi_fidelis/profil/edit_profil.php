@@ -345,7 +345,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="btn-update">
                 <i class="fas fa-save"></i> Simpan Perubahan
             </button>
-            <a href="index_admin_utama.php?page_admin_utama=dashboard" class="btn-back">
+            <a href="index_stasi_fidelis.php?index_stasi_fidelis=dashboard" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </div>

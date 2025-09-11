@@ -6,18 +6,16 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Ambil parameter dari URL
 $lokasi_filter = isset($_GET['lokasi']) ? trim($_GET['lokasi']) : '';
 $tanggal_awal = isset($_GET['tanggal_awal']) ? $_GET['tanggal_awal'] : '';
 $tanggal_akhir = isset($_GET['tanggal_akhir']) ? $_GET['tanggal_akhir'] : '';
 
-// Validasi tanggal
 if (empty($tanggal_awal) || empty($tanggal_akhir)) {
     die("Tanggal awal dan tanggal akhir harus diisi");
 }
 
 $mpdf = new \Mpdf\Mpdf([
-    'margin_top' => 60,  // tambah tinggi margin header
+    'margin_top' => 60,  
     'margin_bottom' => 30,
     'margin_left' => 15,
     'margin_right' => 15,
@@ -28,7 +26,6 @@ $mpdf = new \Mpdf\Mpdf([
 
 $mpdf->showImageErrors = true; 
 
-// Admin login
 $id_admin = $_SESSION['id_akun'] ?? null;
 $nama_admin = '-';
 if ($id_admin) {
@@ -36,14 +33,13 @@ if ($id_admin) {
     if ($admin) $nama_admin = $admin['username'];
 }
 
-// Build where clause untuk filter lokasi dan tanggal
 $where = "WHERE 1=1";
 $conditions = array();
 
 // Filter lokasi
 if (!empty($lokasi_filter)) {
     $lokasi_escaped = mysqli_real_escape_string($koneksi, $lokasi_filter);
-    $conditions[] = "lokasi_pinjam = '$lokasi_escaped'";
+    $conditions[] = "lokasi_simpan = '$lokasi_escaped'";
 }
 
 // Filter tanggal
@@ -57,7 +53,6 @@ if (!empty($conditions)) {
     $where .= " AND " . implode(" AND ", $conditions);
 }
 
-// Query untuk ambil data peminjaman
 $query = "SELECT no_peminjaman, tanggal_pinjam, lokasi_simpan, 
                  kode_barang, nama_barang, jumlah_pinjam, satuan, 
                  lokasi_pinjam, nama_peminjam, keterangan, status 
@@ -65,12 +60,10 @@ $query = "SELECT no_peminjaman, tanggal_pinjam, lokasi_simpan,
           ORDER BY tanggal_pinjam DESC, no_peminjaman ASC";
 $result = mysqli_query($koneksi, $query);
 
-// Hitung summary data
 $total_peminjaman = mysqli_num_rows($result);
 $sudah_kembali = 0;
 $belum_kembali = 0;
 
-// Reset pointer untuk menghitung status
 mysqli_data_seek($result, 0);
 while ($row = mysqli_fetch_assoc($result)) {
     if (strtolower($row['status']) == 'sudah kembali') {
@@ -80,13 +73,10 @@ while ($row = mysqli_fetch_assoc($result)) {
     }
 }
 
-// Reset pointer untuk generate tabel
 mysqli_data_seek($result, 0);
 
-// Path logo
 $logoPath = $_SERVER['DOCUMENT_ROOT'] . "/inventaris-gereja/img/logo.jpg";
 
-// Header dengan informasi lokasi dan periode
 $lokasi_text = !empty($lokasi_filter) ? $lokasi_filter : 'Semua Lokasi';
 $periode_text = date('d/m/Y', strtotime($tanggal_awal)) . ' - ' . date('d/m/Y', strtotime($tanggal_akhir));
 

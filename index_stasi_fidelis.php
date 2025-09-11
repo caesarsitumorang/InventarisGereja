@@ -10,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 require_once("config/koneksi.php");
 
 // Ambil parameter halaman
-$halaman = isset($_GET['page_admin_utama']) ? $_GET['page_admin_utama'] : '';
+$halaman = isset($_GET['page_stasi_fidelis']) ? $_GET['page_stasi_fidelis'] : '';
 $halaman = trim($halaman);
 $halaman = str_replace(['..', './', '//'], '', $halaman);
 
@@ -619,7 +619,6 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
             z-index: 1;
         }
 
-        /* Ensure data table containers don't interfere with header */
         .data-container,
         .data-table-container,
         .main-wrapper {
@@ -629,7 +628,6 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
     </style>
 </head>
 <body>
-    <!-- Combined Top Bar and Navigation - FIXED HEADER -->
     <header class="top-bar">
         <div class="left-section">
             <div class="user-profile" id="userProfileBtn">
@@ -638,7 +636,7 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                 </div>
                 <div class="user-info">
                     <div class="username"><?php echo $_SESSION['username']; ?></div>
-                    <div class="user-role">Admin Paroki</div>
+                    <div class="user-role">Stasi Fidelis</div>
                 </div>
             </div>
         </div>
@@ -646,20 +644,8 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
         <nav>
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="index_admin_utama.php" class="nav-link <?php echo empty($halaman) ? 'active' : ''; ?>">
+                    <a href="index_stasi_fidelis.php" class="nav-link <?php echo empty($halaman) ? 'active' : ''; ?>">
                         <i class="fas fa-dashboard"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="index_admin_utama.php?page_admin_utama=data_akun/data_akun" 
-                       class="nav-link <?php echo ($halaman == 'data_akun/data_akun') ? 'active' : ''; ?>">
-                        <i class="fas fa-users"></i> Data Akun
-                    </a>
-                </li>
-                 <li class="nav-item">
-                    <a href="index_admin_utama.php?page_admin_utama=lokasi/data_lokasi" 
-                       class="nav-link <?php echo ($halaman == 'lokasi/data_lokasi') ? 'active' : ''; ?>">
-                        <i class="fas fa-users"></i> Data Lokasi
                     </a>
                 </li>
                 <li class="nav-item dropdown">
@@ -668,59 +654,59 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                     </a>
                     <div class="dropdown-menu" id="inventarisDropdownMenu" style="max-height: 300px; overflow-y: auto;">
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paroki/data_inventaris_paroki') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_inventaris/paroki/data_inventaris_paroki">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paroki/data_inventaris_paroki">
                            Paroki
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/fidelis/data_inventaris_fidelis') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/fidelis/data_inventaris_fidelis">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis">
                         Stasi St. Fidelis
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/yohanes/data_inventaris_yohanes') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/yohanes/data_inventaris_yohanes">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/yohanes/data_inventaris_yohanes">
                         Stasi St. Yohanes Penginjil 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/agustinus/data_inventaris_agustinus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/agustinus/data_inventaris_agustinus">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/agustinus/data_inventaris_agustinus">
                         Stasi St. Agustinus 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/benediktus/data_inventaris_benediktus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/benediktus/data_inventaris_benediktus">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/benediktus/data_inventaris_benediktus">
                         Stasi St. Benediktus 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paulus_inti/data_inventaris_paulus_inti') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_inti/data_inventaris_paulus_inti">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paulus_inti/data_inventaris_paulus_inti">
                         Stasi St. Paulus Inti
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_fransiskus_asisi') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/fransiskus/data_inventaris_fransiskus">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fransiskus/data_inventaris_fransiskus">
                         Stasi St. Fransiskus Asisi 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_empang') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_empang/data_inventaris_paulus_empang">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paulus_empang/data_inventaris_paulus_empang">
                         Stasi St. Paulus Empang
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_maria_karmel') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/maria/data_inventaris_maria">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/maria/data_inventaris_maria">
                         Stasi Sta. Maria Bunda Karmel 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/sta_elisabet') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/elisabet/data_inventaris_elisabet">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/elisabet/data_inventaris_elisabet">
                         Stasi Sta. Elisabet
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_petrus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/petrus/data_inventaris_petrus">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/petrus/data_inventaris_petrus">
                         Stasi St. Petrus 
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_stefanus') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/stefanus/data_inventaris_stefanus">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/stefanus/data_inventaris_stefanus">
                         Stasi St. Stefanus
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_mikael') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/mikael/data_inventaris_mikael">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/mikael/data_inventaris_mikael">
                         Stasi St. Mikael
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/st_paulus_merambai') ? 'active' : ''; ?>" 
-                        href="index_admin_utama.php?page_admin_utama=data_inventaris/paulus_rasul/data_inventaris_paulus_rasul">
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paulus_rasul/data_inventaris_paulus_rasul">
                         Stasi St. Paulus Rasul
                         </a>
 
@@ -732,23 +718,23 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                     </a>
                     <div class="dropdown-menu" id="transaksiDropdownMenu">
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/peminjaman/data_peminjaman') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/peminjaman/data_peminjaman">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/peminjaman/data_peminjaman">
                            Peminjaman
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_pengembalian') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/pengembalian/data_pengembalian">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/pengembalian/data_pengembalian">
                            Pengembalian
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_kerusakan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/kerusakan/data_kerusakan">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/kerusakan/data_kerusakan">
                            Kerusakan
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_perbaikan') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/perbaikan/data_perbaikan">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/perbaikan/data_perbaikan">
                            Perbaikan
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_transaksi/data_mutasi') ? 'active' : ''; ?>" 
-                           href="index_admin_utama.php?page_admin_utama=data_transaksi/mutasi/data_mutasi">
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/mutasi/data_mutasi">
                            Mutasi
                         </a>
                     </div>
@@ -770,11 +756,11 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                 </div>
                 <div class="user-info">
                     <div class="username"><?php echo $_SESSION['username']; ?></div>
-                    <div class="user-role">Admin Paroki</div>
+                    <div class="user-role">Stasi Fidelis</div>
                 </div>
             </div>
             <div class="user-popup-links">
-                <a href="index_admin_utama.php?page_admin_utama=profil/edit_profil">
+                <a href="index_stasi_fidelis.php?page_stasi_fidelis=profil/edit_profil">
                     <i class="fas fa-edit"></i> Edit Profil
                 </a>
             </div>
@@ -806,15 +792,16 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
         </div>
     </div>
 
+    <!-- MAIN CONTENT AREA -->
     <div id="content">
         <div class="container">
             <?php
             if ($halaman == "") {
-                include "page_admin_utama/dashboard.php";
-            } else if (file_exists("page_admin_utama/$halaman.php")) {
-                include "page_admin_utama/$halaman.php";
+                include "page_stasi_fidelis/dashboard.php";
+            } else if (file_exists("page_stasi_fidelis/$halaman.php")) {
+                include "page_stasi_fidelis/$halaman.php";
             } else {
-                include "page_admin_utama/404.php";
+                include "page_stasi_fidelis/404.php";
             }
             ?>
         </div>
@@ -901,7 +888,6 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                 }
             });
 
-            // Logout overlay toggle
             logoutBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 logoutOverlay.classList.toggle('show');

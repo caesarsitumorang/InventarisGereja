@@ -1,20 +1,26 @@
 <?php
 require_once("config/koneksi.php");
-
-// Count total inventaris
-$query_total = "SELECT COUNT(*) as total FROM inventaris";
+$query_total = "SELECT COUNT(*) as total 
+                FROM inventaris 
+                WHERE lokasi_simpan = 'Stasi St. Fidelis (Karo Simalem)'";
 $result_total = mysqli_query($koneksi, $query_total);
 $row_total = mysqli_fetch_assoc($result_total);
 $total_inventaris = $row_total['total'];
 
-// Count active peminjaman
-$query_active = "SELECT COUNT(*) as active FROM peminjaman WHERE status = 'dipinjam'";
+$query_active = "SELECT COUNT(*) as active 
+                 FROM peminjaman p
+                 JOIN inventaris i ON p.kode_barang = i.kode_barang
+                 WHERE p.status = 'dipinjam'
+                   AND i.lokasi_simpan = 'Stasi St. Fidelis (Karo Simalem)'";
 $result_active = mysqli_query($koneksi, $query_active);
 $row_active = mysqli_fetch_assoc($result_active);
 $active_peminjaman = $row_active['active'];
 
-// Count damaged inventaris from table kerusakan
-$query_rusak = "SELECT COUNT(*) as rusak FROM kerusakan";
+// Count damaged inventaris (khusus lokasi ini)
+$query_rusak = "SELECT COUNT(*) as rusak 
+                FROM kerusakan k
+                JOIN inventaris i ON k.kode_barang = i.kode_barang
+                WHERE i.lokasi_simpan = 'Stasi St. Fidelis (Karo Simalem)'";
 $result_rusak = mysqli_query($koneksi, $query_rusak);
 $row_rusak = mysqli_fetch_assoc($result_rusak);
 $inventaris_rusak = $row_rusak['rusak'];
@@ -57,7 +63,7 @@ $inventaris_rusak = $row_rusak['rusak'];
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     text-align: left;
-    border-left: 6px solid  #3498db;
+    border-left: 6px solid #3498db;
     transition: all 0.3s ease;
     cursor: default;
 }
@@ -115,7 +121,7 @@ $inventaris_rusak = $row_rusak['rusak'];
 
 <div class="dashboard-container">
     <div class="dashboard-welcome">
-        Selamat Datang di Sistem Manajemen Inventaris Paroki
+        Selamat Datang di Sistem Manajemen Inventaris Stasi St. Fidelis (Karo Simalem)
     </div>
 
     <div class="dashboard-content">
