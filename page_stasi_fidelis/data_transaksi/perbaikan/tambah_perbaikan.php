@@ -85,7 +85,6 @@ if (isset($_POST['submit'])) {
         );
         if (mysqli_stmt_execute($stmt)) {
 
-            // Update jumlah inventaris sesuai jumlah kerusakan yang diperbaiki
             $updateInventaris = "UPDATE inventaris SET jumlah = jumlah + ? WHERE kode_barang = ?";
             $stmtInv = mysqli_prepare($koneksi, $updateInventaris);
             mysqli_stmt_bind_param($stmtInv, "is", $jumlah, $kode_barang);
@@ -93,7 +92,7 @@ if (isset($_POST['submit'])) {
 
             echo "<script>
                     alert('Data perbaikan berhasil ditambahkan');
-                    window.location.href='index_admin.php?page_admin=data_transaksi/perbaikan/data_perbaikan';
+                    window.location.href='index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/perbaikan/data_perbaikan';
                   </script>";
         } else {
             echo "<script>alert('Gagal menambahkan data perbaikan');</script>";
@@ -187,7 +186,7 @@ if (isset($_POST['submit'])) {
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
-                <a href="index_admin.php?page_admin=data_transaksi/perbaikan/data_perbaikan" class="btn-cancel">Batal</a>
+                <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/perbaikan/data_perbaikan" class="btn-cancel">Batal</a>
             </div>
         </form>
     </div>

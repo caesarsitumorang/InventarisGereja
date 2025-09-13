@@ -114,19 +114,25 @@ if (isset($_POST['ajax'])) {
 
 <div class="container">
     <div class="page-header">
-        <h2>Mutasi</h2>
+        <h2>Mutasi - Lokasi: Stasi St. Fidelis (Karo Simalem)</h2>
     </div>
 
     <div class="toolbar">
         <div class="left-tools">
-           <button type="button" class="btn btn-primary" onclick="showAddForm()">
-    <i class="fas fa-plus"></i> Tambah Data Mutasi
-</button>
+           <!-- Tombol hanya muncul jika lokasi Stasi St. Fidelis -->
+           <div id="actionButtons" style="display:none;">
+                <button type="button" class="btn btn-primary" onclick="showAddForm()">
+                    <i class="fas fa-plus"></i> Tambah Data Mutasi
+                </button>
+                <button class="btn btn-success" onclick="showLocationModal()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+           </div>
 
             <div class="filter-group">
                 <select class="form-select" id="filterSelect">
                     <option value="Paroki">Paroki</option>
-                    <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
+                    <option value="Stasi St. Fidelis (Karo Simalem)" selected>Stasi St. Fidelis (Karo Simalem)</option>
                     <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
                     <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
                     <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
@@ -141,9 +147,6 @@ if (isset($_POST['ajax'])) {
                     <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
                 </select>
             </div>
-            <button class="btn btn-success" onclick="showLocationModal()">
-                <i class="fas fa-download"></i> Download
-            </button>
         </div>
         <div class="right-tools">
             <input type="text" id="searchInput" class="search-input" placeholder="Cari...">
@@ -169,7 +172,6 @@ if (isset($_POST['ajax'])) {
     </div>
   </div>
 </div>
-
 
 <div id="locationModal" class="modal">
     <div class="modal-content location-modal">
@@ -198,7 +200,6 @@ if (isset($_POST['ajax'])) {
     </div>
 </div>
 
-
 <script>
 let currentPage = 1;
 let searchTimeout;
@@ -224,14 +225,27 @@ function loadData(page = 1) {
     })
     .then(html => {
         document.getElementById('dataTableContainer').innerHTML = html;
+
+        // Cek lokasi untuk tombol
+        toggleButtons();
     })
     .catch(error => {
         console.error('Error:', error);
         document.getElementById('dataTableContainer').innerHTML = '<div style="text-align: center; padding: 50px; color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i> Terjadi kesalahan saat memuat data</div>';
     });
 }
+
+function toggleButtons() {
+    const lokasi_filter = document.getElementById('filterSelect').value;
+    const actionButtons = document.getElementById('actionButtons');
+    if (lokasi_filter === "Stasi St. Fidelis (Karo Simalem)") {
+        actionButtons.style.display = "block";
+    } else {
+        actionButtons.style.display = "none";
+    }
+}
+
 function showLocationModal() {
-    // Set default dates (last 30 days)
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -252,7 +266,6 @@ function downloadPDF() {
     const tanggalAwal = document.getElementById('tanggalAwal').value;
     const tanggalAkhir = document.getElementById('tanggalAkhir').value;
     
-    // Validasi tanggal
     if (!tanggalAwal || !tanggalAkhir) {
         alert('Harap pilih tanggal awal dan tanggal akhir');
         return;
@@ -265,7 +278,6 @@ function downloadPDF() {
     
     closeLocationModal();
     
-    // Show loading notification
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
@@ -286,26 +298,23 @@ function downloadPDF() {
         document.body.removeChild(notification);
     }, 3000);
     
-    // Open PDF in new tab
     const url = 'index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/mutasi/cetak_mutasi' +
                 '&tanggal_awal=' + encodeURIComponent(tanggalAwal) +
                 '&tanggal_akhir=' + encodeURIComponent(tanggalAkhir);
     window.open(url, '_blank');
 }
 
-// Event Listener untuk menutup modal dengan Escape
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeLocationModal();
     }
 });
+
 function showAddForm() {
     window.location.href = 'index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/mutasi/tambah_mutasi';
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Search functionality
     document.getElementById('searchInput').addEventListener('keyup', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
@@ -313,12 +322,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
     
-    // Filter functionality
     document.getElementById('filterSelect').addEventListener('change', function() {
         loadData(1);
     });
     
-    // Close modal when clicking outside
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('locationModal');
         if (event.target === modal) {
@@ -326,17 +333,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Load initial data with default filter (Paroki)
+    // Load initial data langsung ke Stasi St. Fidelis
     loadData(1);
 });
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeLocationModal();
-    }
-});
 </script>
+
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');

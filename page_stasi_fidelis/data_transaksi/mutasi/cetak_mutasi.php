@@ -15,7 +15,7 @@ if (empty($tanggal_awal) || empty($tanggal_akhir)) {
 }
 
 $mpdf = new \Mpdf\Mpdf([
-    'margin_top' => 60,  // tambah tinggi margin header
+    'margin_top' => 60,
     'margin_bottom' => 30,
     'margin_left' => 15,
     'margin_right' => 15,
@@ -32,14 +32,19 @@ if ($id_admin) {
     if ($admin) $nama_admin = $admin['username'];
 }
 
-// Ambil semua data mutasi sesuai periode
+// Lokasi filter
+$lokasi_awal_filter = "Stasi St. Fidelis (Karo Simalem)";
+$lokasi_awal_escaped = mysqli_real_escape_string($koneksi, $lokasi_awal_filter);
+
+// Ambil semua data mutasi sesuai periode + lokasi_awal
 $tanggal_awal_escaped = mysqli_real_escape_string($koneksi, $tanggal_awal);
 $tanggal_akhir_escaped = mysqli_real_escape_string($koneksi, $tanggal_akhir);
-$where = "WHERE DATE(tanggal_mutasi) BETWEEN '$tanggal_awal_escaped' AND '$tanggal_akhir_escaped'";
 
 $query = "SELECT no_mutasi, tanggal_mutasi, lokasi_awal, kode_barang, nama_barang, jumlah, satuan, lokasi_mutasi, keterangan
           FROM mutasi
-          WHERE tanggal_mutasi >= '$tanggal_awal_escaped' AND tanggal_mutasi <= '$tanggal_akhir_escaped'
+          WHERE tanggal_mutasi >= '$tanggal_awal_escaped' 
+            AND tanggal_mutasi <= '$tanggal_akhir_escaped'
+            AND lokasi_awal = '$lokasi_awal_escaped'
           ORDER BY tanggal_mutasi DESC, no_mutasi ASC";
 
 $result = mysqli_query($koneksi, $query);
@@ -48,7 +53,8 @@ $total_mutasi = mysqli_num_rows($result);
 // Path logo
 $logoPath = $_SERVER['DOCUMENT_ROOT'] . "/inventaris-gereja/img/logo.jpg";
 
-$lokasi_text = 'Semua Lokasi';
+// Text info laporan
+$lokasi_text = $lokasi_awal_filter;
 $periode_text = date('d/m/Y', strtotime($tanggal_awal)) . ' - ' . date('d/m/Y', strtotime($tanggal_akhir));
 
 // Header PDF
@@ -182,7 +188,7 @@ if ($total_mutasi > 0) {
     $html .= '
     <tr>
         <td colspan="10" style="text-align:center; padding:20px; color:#777; font-style:italic;">
-            Tidak ada data mutasi pada periode '.$periode_text.'
+            Tidak ada data mutasi pada periode '.$periode_text.' untuk '.$lokasi_text.'
         </td>
     </tr>';
 }
@@ -194,10 +200,11 @@ $html .= '
     <p>Pastor Paroki,</p>
     <div class="signature-name">P. Antonius Dwi Raharjo, SCJ.</div>
 </div>';
+
 // Output PDF
 ob_clean();
 $mpdf->WriteHTML($html);
-$filename = "Laporan_Mutasi_Semua_Lokasi_" . 
+$filename = "Laporan_Mutasi_" . str_replace(' ', '_', $lokasi_text) . "_" . 
             str_replace('/', '-', date('d-m-Y', strtotime($tanggal_awal))) . "_sampai_" . 
             str_replace('/', '-', date('d-m-Y', strtotime($tanggal_akhir))) . ".pdf";
 $mpdf->Output($filename, "I");

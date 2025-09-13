@@ -7,10 +7,8 @@ if (isset($_POST['ajax'])) {
     $start = ($page - 1) * $limit;
     $search = isset($_POST['search']) ? trim($_POST['search']) : '';
 
-    // Lokasi default fix
     $lokasi_filter = "Stasi St. Fidelis (Karo Simalem)";
 
-    // Build where clause
     $where = "WHERE lokasi_simpan = '" . mysqli_real_escape_string($koneksi, $lokasi_filter) . "'";
     if (!empty($search)) {
         $search = mysqli_real_escape_string($koneksi, $search);
@@ -26,7 +24,6 @@ if (isset($_POST['ajax'])) {
     $total_records = mysqli_fetch_assoc($total_result)['count'];
     $total_pages = ceil($total_records / $limit);
 
-    // Ambil data sesuai pagination
     $query = "SELECT id_rusak, no_kerusakan, tanggal_kerusakan, lokasi_simpan, 
                      kode_barang, nama_barang, jumlah, satuan, keterangan, nama_akun
               FROM kerusakan $where

@@ -653,13 +653,13 @@ $halaman = str_replace(['..', './', '//'], '', $halaman);
                         <i class="fas fa-boxes"></i> Data Inventaris
                     </a>
                     <div class="dropdown-menu" id="inventarisDropdownMenu" style="max-height: 300px; overflow-y: auto;">
-                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paroki/data_inventaris_paroki') ? 'active' : ''; ?>" 
-                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paroki/data_inventaris_paroki">
-                           Paroki
-                        </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/fidelis/data_inventaris_fidelis') ? 'active' : ''; ?>" 
-                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis">
-                        Stasi St. Fidelis
+                           href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis">
+                           Stasi St. Fidelis
+                        </a>
+                        <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/paroki/data_inventaris_paroki') ? 'active' : ''; ?>" 
+                        href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/paroki/data_inventaris_paroki">
+                        Paroki
                         </a>
                         <a class="dropdown-item <?php echo ($halaman == 'data_inventaris/yohanes/data_inventaris_yohanes') ? 'active' : ''; ?>" 
                         href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/yohanes/data_inventaris_yohanes">

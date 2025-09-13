@@ -18,7 +18,7 @@ if(isset($_GET['id'])) {
     if(!$data) {
         echo "<script>
                 alert('Data tidak ditemukan');
-                window.location.href='index_admin.php?page_admin=data_inventaris/fidelis/data_inventaris_fidelis';
+                window.location.href='index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis';
               </script>";
         exit;
     }
@@ -56,7 +56,7 @@ if(isset($_POST['submit'])) {
     if(mysqli_stmt_execute($stmt)) {
         echo "<script>
                 alert('Data berhasil diupdate');
-                window.location.href='index_admin.php?page_admin=data_inventaris/fidelis/data_inventaris_fidelis';
+                window.location.href='index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis';
               </script>";
     } else {
         echo "<script>alert('Gagal mengupdate data');</script>";
@@ -199,7 +199,7 @@ if(isset($_POST['submit'])) {
                 <button type="submit" name="submit" class="btn-submit">
                     <i class="fas fa-save"></i> Simpan Perubahan
                 </button>
-                <a href="index_admin.php?page_admin=data_inventaris/fidelis/data_inventaris_fidelis" class="btn-cancel">
+                <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/data_inventaris_fidelis" class="btn-cancel">
                     <i class="fas fa-times"></i> Batal
                 </a>
             </div>

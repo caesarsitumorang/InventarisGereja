@@ -22,6 +22,7 @@ if (isset($_POST['ajax'])) {
     ob_start(); ?>
     
     <table class="data-table">
+         <h1 style="text-align:center; margin-bottom: 15px;">Data Akun</h1>
         <thead>
             <tr>
                 <th>No</th>
@@ -32,7 +33,7 @@ if (isset($_POST['ajax'])) {
                 <th>Alamat</th>
                 <th>No HP</th>
                 <th>Email</th>
-                <th>Password</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>

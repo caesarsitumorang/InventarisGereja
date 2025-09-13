@@ -1,6 +1,13 @@
 <?php
 require_once("config/koneksi.php");
 
+// Ambil daftar lokasi dari tabel lokasi
+$lokasi_list = [];
+$lokasi_query = mysqli_query($koneksi, "SELECT nama_lokasi FROM lokasi ORDER BY nama_lokasi ASC");
+while ($lok = mysqli_fetch_assoc($lokasi_query)) {
+    $lokasi_list[] = $lok['nama_lokasi'];
+}
+
 if(isset($_POST['ajax'])) {
     $limit = 10;
     $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
@@ -45,6 +52,9 @@ if(isset($_POST['ajax'])) {
     ob_start();
     ?>
     <div class="table-scroll">
+        <h3 style="text-align:center; margin-bottom:15px;">
+            Data Peminjaman <?= !empty($lokasi_filter) ? "- " . htmlspecialchars($lokasi_filter) : "" ?>
+        </h3>
         <table class="data-table">
             <thead>
                 <tr>
@@ -93,13 +103,12 @@ if(isset($_POST['ajax'])) {
                         <td><?= htmlspecialchars($row['nama_peminjam']); ?></td>
                         <td><?= htmlspecialchars($row['keterangan']); ?></td>
                         <td><span class="<?= $status_class ?>"><?= htmlspecialchars($status_text); ?></span></td>
-                       <td><?= htmlspecialchars($row['nama_akun'] ?? 'Tidak ada'); ?></td>
-
+                        <td><?= htmlspecialchars($row['nama_akun'] ?? 'Tidak ada'); ?></td>
                     </tr>
                 <?php } ?>
                 <?php if (mysqli_num_rows($result) == 0) { ?>
                     <tr>
-                        <td colspan="12" class="text-center">Tidak ada data</td>
+                        <td colspan="13" class="text-center">Tidak ada data</td>
                     </tr>
                 <?php } ?>
             </tbody>
@@ -107,21 +116,21 @@ if(isset($_POST['ajax'])) {
     </div>
 
     <?php if ($total_records > 0) { ?>
-<div class="pagination">
-    <a href="javascript:void(0);" onclick="loadData(1)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>First</a>
-    <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&lt;&lt;</a>
-    
-    <?php
-    $start_page = max(1, $page - 2);
-    $end_page = min($total_pages, $page + 2);
-    for ($i = $start_page; $i <= $end_page; $i++) { ?>
-        <a href="javascript:void(0);" onclick="loadData(<?= $i; ?>)" <?= ($i == $page ? 'class="active"' : '') ?>><?= $i; ?></a>
+    <div class="pagination">
+        <a href="javascript:void(0);" onclick="loadData(1)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>First</a>
+        <a href="javascript:void(0);" onclick="loadData(<?= max(1, $page - 1); ?>)" <?= ($page == 1 ? 'class="disabled"' : '') ?>>&lt;&lt;</a>
+        
+        <?php
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
+        for ($i = $start_page; $i <= $end_page; $i++) { ?>
+            <a href="javascript:void(0);" onclick="loadData(<?= $i; ?>)" <?= ($i == $page ? 'class="active"' : '') ?>><?= $i; ?></a>
+        <?php } ?>
+        
+        <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&gt;&gt;</a>
+        <a href="javascript:void(0);" onclick="loadData(<?= $total_pages; ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>Last</a>
+    </div>
     <?php } ?>
-    
-    <a href="javascript:void(0);" onclick="loadData(<?= min($page + 1, $total_pages); ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>&gt;&gt;</a>
-    <a href="javascript:void(0);" onclick="loadData(<?= $total_pages; ?>)" <?= ($page == $total_pages ? 'class="disabled"' : '') ?>>Last</a>
-</div>
-<?php } ?>
 
     <?php
     echo ob_get_clean();
@@ -141,20 +150,9 @@ if(isset($_POST['ajax'])) {
             </button>
             <div class="filter-group">
                 <select class="form-select" id="filterSelect">
-                    <option value="Paroki">Paroki</option>
-                    <option value="Stasi St. Fidelis (Karo Simalem)">Stasi St. Fidelis (Karo Simalem)</option>
-                    <option value="Stasi St. Yohanes Penginjil (Minas Jaya)">Stasi St. Yohanes Penginjil (Minas Jaya)</option>
-                    <option value="Stasi St. Agustinus (Minas Barat)">Stasi St. Agustinus (Minas Barat)</option>
-                    <option value="Stasi St. Benediktus (Teluk Siak)">Stasi St. Benediktus (Teluk Siak)</option>
-                    <option value="Stasi St. Paulus (Inti 4)">Stasi St. Paulus (Inti 4)</option>
-                    <option value="Stasi St. Fransiskus Asisi (Inti 7)">Stasi St. Fransiskus Asisi (Inti 7)</option>
-                    <option value="Stasi St. Paulus (Empang Pandan)">Stasi St. Paulus (Empang Pandan)</option>
-                    <option value="Stasi Sta. Maria Bunda Karmel (Teluk Merbau)">Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</option>
-                    <option value="Stasi Sta. Elisabet (Sialang Sakti)">Stasi Sta. Elisabet (Sialang Sakti)</option>
-                    <option value="Stasi St. Petrus (Pangkalan Makmur)">Stasi St. Petrus (Pangkalan Makmur)</option>
-                    <option value="Stasi St. Stefanus (Zamrud)">Stasi St. Stefanus (Zamrud)</option>
-                    <option value="Stasi St. Mikael (Siak Raya)">Stasi St. Mikael (Siak Raya)</option>
-                    <option value="Stasi St. Paulus Rasul (Siak Merambai)">Stasi St. Paulus Rasul (Siak Merambai)</option>
+                    <?php foreach ($lokasi_list as $lokasi) { ?>
+                        <option value="<?= htmlspecialchars($lokasi) ?>"><?= htmlspecialchars($lokasi) ?></option>
+                    <?php } ?>
                 </select>
             </div>
             <button class="btn btn-success" onclick="showLocationModal()">
@@ -196,62 +194,12 @@ if(isset($_POST['ajax'])) {
             <div class="location-section">
                 <h4>Pilih Lokasi</h4>
                 <div class="location-grid">
-                    <div class="location-item" onclick="downloadPDF('Paroki')">
-                        <i class="fas fa-church"></i>
-                        <span>Paroki</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Fidelis (Karo Simalem)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Fidelis (Karo Simalem)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Yohanes Penginjil (Minas Jaya)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Yohanes Penginjil (Minas Jaya)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Agustinus (Minas Barat)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Agustinus (Minas Barat)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Benediktus (Teluk Siak)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Benediktus (Teluk Siak)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Paulus (Inti 4)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Paulus (Inti 4)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Fransiskus Asisi (Inti 7)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Fransiskus Asisi (Inti 7)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Paulus (Empang Pandan)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Paulus (Empang Pandan)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi Sta. Maria Bunda Karmel (Teluk Merbau)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi Sta. Maria Bunda Karmel (Teluk Merbau)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi Sta. Elisabet (Sialang Sakti)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi Sta. Elisabet (Sialang Sakti)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Petrus (Pangkalan Makmur)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Petrus (Pangkalan Makmur)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Stefanus (Zamrud)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Stefanus (Zamrud)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Mikael (Siak Raya)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Mikael (Siak Raya)</span>
-                    </div>
-                    <div class="location-item" onclick="downloadPDF('Stasi St. Paulus Rasul (Siak Merambai)')">
-                        <i class="fas fa-cross"></i>
-                        <span>Stasi St. Paulus Rasul (Siak Merambai)</span>
-                    </div>
+                    <?php foreach ($lokasi_list as $lokasi) { ?>
+                        <div class="location-item" onclick="downloadPDF('<?= htmlspecialchars($lokasi) ?>')">
+                            <i class="fas fa-cross"></i>
+                            <span><?= htmlspecialchars($lokasi) ?></span>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>

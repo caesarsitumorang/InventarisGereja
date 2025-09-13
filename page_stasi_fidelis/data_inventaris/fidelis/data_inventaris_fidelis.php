@@ -39,6 +39,7 @@ if(isset($_POST['ajax'])) {
 
     ob_start();
     ?>
+    <h1 style="text-align:center; margin-bottom: 15px;">Data Inventaris Stasi St. Fidelis (Karo Simalem)</h1>
     <table class="data-table">
         <thead>
             <tr>
@@ -81,7 +82,7 @@ if(isset($_POST['ajax'])) {
                     <td>
                     <div class="action-buttons">
                             <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/edit_inventaris_fidelis&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>
-                            <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/edit_inventaris_fidelis&id=<?= $row['id']; ?>" 
+                            <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_inventaris/fidelis/hapus_inventaris_fidelis&id=<?= $row['id']; ?>" 
                             class="btn-delete" 
                             onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</a>
                             <button type="button" 
@@ -118,29 +119,29 @@ if(isset($_POST['ajax'])) {
      </div>
     <?php } ?>
     <?php 
-// Data kategori statis
-$kategori_data = [
-    "Bangunan" => 100,
-    "Liturgi" => 200,
-    "Pakaian Misa" => 300,
-    "Pakaian Misdinar" => 400,
-    "Buku Misa" => 500,
-    "Mebulair" => 600,
-    "Alat Elektronik" => 700,
-    "Alat Rumah Tangga" => 800
-];
-?>
+    // Data kategori statis
+    $kategori_data = [
+        "Bangunan" => 100,
+        "Liturgi" => 200,
+        "Pakaian Misa" => 300,
+        "Pakaian Misdinar" => 400,
+        "Buku Misa" => 500,
+        "Mebulair" => 600,
+        "Alat Elektronik" => 700,
+        "Alat Rumah Tangga" => 800
+    ];
+    ?>
 
-<div class="category-list">
-    <?php foreach($kategori_data as $kategori => $total) { ?>
-        <div class="category-item">
-            <span class="kategori-name"><?= htmlspecialchars($kategori); ?></span>
-            <span class="kategori-total">: <?= number_format($total); ?></span>
-        </div>
-    <?php } ?>
-</div>
+    <div class="category-list">
+        <?php foreach($kategori_data as $kategori => $total) { ?>
+            <div class="category-item">
+                <span class="kategori-name"><?= htmlspecialchars($kategori); ?></span>
+                <span class="kategori-total">: <?= number_format($total); ?></span>
+            </div>
+        <?php } ?>
+    </div>
 
-</div>
+    </div>
 
 
     <?php
@@ -168,7 +169,7 @@ $kategori_data = [
     </div>
 
     <div id="dataTableContainer" class="data-table-container">
-        <!-- Data will be loaded here -->
+        <div> <H1>Data Inventaris Fidelis</H1></div>
     </div>
 </div>
 

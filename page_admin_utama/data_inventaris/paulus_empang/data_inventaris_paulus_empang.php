@@ -35,6 +35,7 @@ if(isset($_POST['ajax'])) {
     ob_start();
     ?>
     <div class="table-scroll">
+         <h1 style="text-align:center; margin-bottom: 15px;">Data Inventaris Stasi St. Paulus (Empang Pandan)</h1>
     <table class="data-table">
         <thead>
             <tr>

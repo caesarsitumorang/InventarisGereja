@@ -7,7 +7,6 @@ if (session_status() == PHP_SESSION_NONE) {
 // Ambil username session untuk pengembali otomatis
 $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
-// Fungsi Generate No Pengembalian
 function generateNoPengembalian($koneksi) {
     $prefix = "PG";
     $query = "SELECT no_pengembalian FROM pengembalian 
@@ -23,12 +22,13 @@ function generateNoPengembalian($koneksi) {
     return $prefix . $newNumber;
 }
 
-// Ambil data peminjaman yang BELUM dikembalikan
 $peminjaman = mysqli_query($koneksi, "
-    SELECT p.no_peminjaman, p.nama_peminjam, p.kode_barang, p.nama_barang, p.lokasi_simpan, p.jumlah_pinjam, p.satuan 
+    SELECT p.no_peminjaman, p.nama_peminjam, p.kode_barang, p.nama_barang, 
+           p.lokasi_simpan, p.jumlah_pinjam, p.satuan 
     FROM peminjaman p
     LEFT JOIN pengembalian pg ON p.no_peminjaman = pg.no_peminjaman
-    WHERE p.status != 'Sudah Dikembalikan'
+    WHERE p.lokasi_simpan = 'Stasi St. Fidelis (Karo Simalem)'
+      AND p.status NOT IN ('Sudah Dikembalikan', 'pending', 'ditolak')
     ORDER BY p.no_peminjaman ASC
 ");
 
@@ -41,8 +41,7 @@ if (isset($_POST['submit'])) {
     $nama_barang     = $_POST['nama_barang'];
     $jumlah          = (int)$_POST['jumlah'];
     $satuan          = $_POST['satuan'];
-    $pengembali      = $_POST['pengembali']; // ambil dari input user, bukan session
-
+    $pengembali      = $_POST['pengembali'];
     $kondisi_barang  = $_POST['kondisi_barang'];
     $keterangan      = $_POST['keterangan'];
 
@@ -57,10 +56,8 @@ if (isset($_POST['submit'])) {
     );
 
     if (mysqli_stmt_execute($stmt)) {
-        // Update status peminjaman jadi sudah dikembalikan
         mysqli_query($koneksi, "UPDATE peminjaman SET status='Sudah Dikembalikan' WHERE no_peminjaman='$no_peminjaman'");
 
-        // Update jumlah inventaris sesuai jumlah pengembalian
         $updateInventaris = "UPDATE inventaris SET jumlah = jumlah + ? WHERE kode_barang = ?";
         $stmtInv = mysqli_prepare($koneksi, $updateInventaris);
         mysqli_stmt_bind_param($stmtInv, "is", $jumlah, $kode_barang);
@@ -68,7 +65,7 @@ if (isset($_POST['submit'])) {
 
         echo "<script>
                 alert('Data pengembalian berhasil ditambahkan');
-                window.location.href='index_admin.php?page_admin=data_transaksi/pengembalian/data_pengembalian';
+                window.location.href='index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/pengembalian/data_pengembalian';
               </script>";
     } else {
         echo "<script>alert('Gagal menambahkan data pengembalian');</script>";
@@ -164,7 +161,7 @@ if (isset($_POST['submit'])) {
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
-                <a href="index_admin.php?page_admin=data_transaksi/pengembalian/data_pengembalian" class="btn-cancel">Batal</a>
+                <a href="index_stasi_fidelis.php?page_stasi_fidelis=data_transaksi/pengembalian/data_pengembalian" class="btn-cancel">Batal</a>
             </div>
         </form>
     </div>

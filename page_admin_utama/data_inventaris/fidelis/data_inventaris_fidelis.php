@@ -40,6 +40,7 @@ if(isset($_POST['ajax'])) {
     ob_start();
     ?>
     <table class="data-table">
+        <h1 style="text-align:center; margin-bottom: 15px;">Data Inventaris Stasi St. Fidelis (Karo Simalem)</h1>
         <thead>
             <tr>
                 <th>No</th>
@@ -81,7 +82,7 @@ if(isset($_POST['ajax'])) {
                     <td>
                     <div class="action-buttons">
                             <a href="index_admin_utama.php?page_admin_utama=data_inventaris/fidelis/edit_inventaris_fidelis&id=<?= $row['id']; ?>" class="btn-edit">Edit</a>
-                            <a href="index_admin_utama.php?page_admin_utama=data_inventaris/fidelis/edit_inventaris_fidelis&id=<?= $row['id']; ?>" 
+                            <a href="index_admin_utama.php?page_admin_utama=data_inventaris/fidelis/hapus_inventaris_fidelis&id=<?= $row['id']; ?>" 
                             class="btn-delete" 
                             onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</a>
                             <button type="button" 

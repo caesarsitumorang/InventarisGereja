@@ -4,6 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// === Fungsi Generate No Peminjaman ===
 function generateNoPeminjaman($koneksi) {
     $prefix = "PJ";
     $query = "SELECT no_peminjaman FROM peminjaman 
@@ -20,13 +21,14 @@ function generateNoPeminjaman($koneksi) {
     return $prefix . $newNumber; 
 }
 
-// Ambil inventaris khusus lokasi "Stasi St. Fidelis (Karo Simalem)"
-$lokasi_fix = "Stasi St. Fidelis (Karo Simalem)";
-$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan 
-                                      FROM inventaris 
-                                      WHERE lokasi_simpan = '$lokasi_fix' 
-                                      ORDER BY nama_barang ASC");
+$lokasi_query = "SELECT nama_lokasi FROM lokasi WHERE nama_lokasi != 'Stasi St. Fidelis (Karo Simalem)' ORDER BY nama_lokasi ASC";
+$lokasi_result = mysqli_query($koneksi, $lokasi_query);
+$lokasi_unik = [];
+while ($row = mysqli_fetch_assoc($lokasi_result)) {
+    $lokasi_unik[] = $row['nama_lokasi'];
+}
 
+$inventaris = mysqli_query($koneksi, "SELECT kode_barang, nama_barang, lokasi_simpan, jumlah, satuan FROM inventaris ORDER BY lokasi_simpan, nama_barang ASC");
 $data_inventaris = [];
 while($row = mysqli_fetch_assoc($inventaris)) {
     $data_inventaris[] = $row;
@@ -35,7 +37,7 @@ while($row = mysqli_fetch_assoc($inventaris)) {
 if(isset($_POST['submit'])) {
     $no_peminjaman = generateNoPeminjaman($koneksi);
     $tanggal_pinjam = $_POST['tanggal_pinjam'];
-    $lokasi_simpan = $lokasi_fix; 
+    $lokasi_simpan = $_POST['lokasi_simpan'];
     $kode_barang = $_POST['kode_barang'];
     $nama_barang = $_POST['nama_barang'];
     $jumlah_pinjam = (int)$_POST['jumlah_pinjam'];
@@ -43,7 +45,7 @@ if(isset($_POST['submit'])) {
     $lokasi_pinjam = $_POST['lokasi_pinjam']; 
     $nama_peminjam = $_POST['nama_peminjam'];
     $keterangan = $_POST['keterangan'];
-    $status = "Belum Dikembalikan"; 
+    $status = "Pending"; 
     $namaAkun = isset($_SESSION['username']) ? $_SESSION['username'] : 'unknown';
 
     $query = "INSERT INTO peminjaman 
@@ -58,6 +60,7 @@ if(isset($_POST['submit'])) {
     );
 
     if(mysqli_stmt_execute($stmt)) {
+        // Update stok inventaris
         $update = "UPDATE inventaris SET jumlah = jumlah - ? WHERE kode_barang = ?";
         $stmt2 = mysqli_prepare($koneksi, $update);
         mysqli_stmt_bind_param($stmt2, "is", $jumlah_pinjam, $kode_barang);
@@ -77,7 +80,7 @@ if(isset($_POST['submit'])) {
 <div class="form-container">
     <div class="form-card">
         <div class="form-header">
-            <h2>Tambah Data Transaksi</h2>
+            <h2>Pengajuan Peminjaman Luar Lokasi</h2>
         </div>
         
         <form method="POST" class="add-form">
@@ -96,21 +99,17 @@ if(isset($_POST['submit'])) {
             <div class="form-row">
                 <div class="form-group half">
                     <label for="lokasi_simpan">Lokasi Simpan</label>
-                    <input type="text" id="lokasi_simpan" name="lokasi_simpan" 
-                           value="<?= $lokasi_fix; ?>" readonly class="form-control">
+                    <select id="lokasi_simpan" name="lokasi_simpan" required class="form-control" onchange="filterBarang()">
+                        <option value="">Pilih Lokasi</option>
+                        <?php foreach($lokasi_unik as $lok) { ?>
+                            <option value="<?= htmlspecialchars($lok); ?>"><?= htmlspecialchars($lok); ?></option>
+                        <?php } ?>
+                    </select>
                 </div>
                 <div class="form-group half">
                     <label for="nama_barang">Nama Barang</label>
-                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()">
+                    <select id="nama_barang" name="nama_barang" required class="form-control" onchange="updateBarang()" disabled>
                         <option value="">Pilih Nama Barang</option>
-                        <?php foreach($data_inventaris as $item) { ?>
-                            <option value="<?= htmlspecialchars($item['nama_barang']); ?>"
-                                    data-kode="<?= htmlspecialchars($item['kode_barang']); ?>"
-                                    data-jumlah="<?= htmlspecialchars($item['jumlah']); ?>"
-                                    data-satuan="<?= htmlspecialchars($item['satuan']); ?>">
-                                <?= htmlspecialchars($item['nama_barang']); ?>
-                            </option>
-                        <?php } ?>
                     </select>
                 </div>
             </div>
@@ -153,7 +152,7 @@ if(isset($_POST['submit'])) {
                 <textarea id="keterangan" name="keterangan" class="form-control"></textarea>
             </div>
 
-            <input type="hidden" name="status" value="Belum Dikembalikan">
+            <input type="hidden" name="status" value="Pending">
 
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn-submit">Simpan</button>
@@ -164,6 +163,37 @@ if(isset($_POST['submit'])) {
 </div>
 
 <script>
+var inventaris = <?= json_encode($data_inventaris); ?>;
+
+function filterBarang() {
+    var lokasi = document.getElementById("lokasi_simpan").value;
+    var barangSelect = document.getElementById("nama_barang");
+    barangSelect.innerHTML = "<option value=''>Pilih Nama Barang</option>";
+
+    if(lokasi === "") {
+        barangSelect.disabled = true;
+    } else {
+        barangSelect.disabled = false;
+        inventaris.forEach(function(item) {
+            if (item.lokasi_simpan === lokasi) {
+                var option = document.createElement("option");
+                option.value = item.nama_barang;
+                option.text = item.nama_barang;
+                option.setAttribute("data-kode", item.kode_barang);
+                option.setAttribute("data-jumlah", item.jumlah);
+                option.setAttribute("data-satuan", item.satuan);
+                barangSelect.appendChild(option);
+            }
+        });
+    }
+
+    // reset detail
+    document.getElementById("kode_barang").value = "";
+    document.getElementById("jumlah_tersedia").value = "";
+    document.getElementById("satuan").value = "";
+    document.getElementById("jumlah_pinjam").value = "";
+}
+
 function updateBarang() {
     var select = document.getElementById("nama_barang");
     var kode = select.options[select.selectedIndex].getAttribute("data-kode");
@@ -185,8 +215,6 @@ function validasiJumlah() {
     }
 }
 </script>
-
-
 
 <style>
     .form-group.third {

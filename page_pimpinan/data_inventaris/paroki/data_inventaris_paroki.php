@@ -35,6 +35,7 @@ if(isset($_POST['ajax'])) {
     ob_start();
     ?>
     <div class="table-scroll">
+        <h1 style="text-align:center; margin-bottom: 15px;">Data Inventaris Paroki</h1>
     <table class="data-table">
         <thead>
             <tr>
@@ -49,7 +50,7 @@ if(isset($_POST['ajax'])) {
                 <th>Tgl Pengadaan</th>
                 <th>Kondisi</th>
                 <th>Sumber</th>
-               <th>Harga</th>
+                <th>Harga</th>
                 <th>Keterangan</th>
                 <th>Nama Akun</th>
                 <th>Aksi</th>
